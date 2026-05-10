@@ -49,6 +49,101 @@
       ],
       "status": "pending",
       "priority": "high"
+    },
+    {
+      "id": "harness-tool-layer",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "도구(Tool) 레이어 설계",
+      "description": "하네스 7요소 중 '02 도구 레이어' 영역이 현재 patterns.md에 비어 있음. 도구 설명문 설계, 도구 개수 한계, 동적 로딩, MCP 설계, 결과 압축을 패턴으로 추가.",
+      "done_criteria": "각 항목이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 harness-engineering/patterns.md에 추가됨. validate-docs.sh 통과.",
+      "items": [
+        {"name": "도구 description 설계 원칙", "priority": "high", "summary": "도구 이름·설명문이 모델의 도구 선택 정확도에 미치는 영향, anti-pattern 모음"},
+        {"name": "도구 개수 한계와 동적 로딩", "priority": "high", "summary": "도구 수가 늘면 선택 정확도 하락, just-in-time 도구 노출, 도구 카탈로그 패턴"},
+        {"name": "MCP 서버 설계 원칙", "priority": "medium", "summary": "MCP를 하네스 도구 레이어로 쓸 때의 설계 가이드, 인하우스 도구 인터페이스와의 비교"},
+        {"name": "도구 결과 압축·트렁케이션", "priority": "medium", "summary": "도구 응답이 컨텍스트를 잠식하지 않도록 하는 결과 가공 패턴"}
+      ],
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "harness-sandbox-security",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "샌드박스·인젝션 방어 (가드레일 시스템 측면)",
+      "description": "하네스 7요소 중 '05 가드레일'에서 현재 patterns.md는 lint·CI(아키텍처 강제)만 다룸. 시스템 격리·네트워크 정책·시크릿·프롬프트 인젝션 방어가 빠져 있음. 자율 모드 안전 운영의 핵심.",
+      "done_criteria": "각 항목이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 harness-engineering/patterns.md에 추가됨. validate-docs.sh 통과.",
+      "items": [
+        {"name": "에이전트 샌드박스 격리", "priority": "high", "summary": "devcontainer / ephemeral VM / firejail 등으로 에이전트 작업 환경 분리"},
+        {"name": "네트워크 egress 정책", "priority": "high", "summary": "에이전트가 임의 외부 호출 못 하도록 화이트리스트·허용 도메인 관리"},
+        {"name": "시크릿 redaction & detection", "priority": "high", "summary": "프롬프트·도구 결과·커밋에서 시크릿 감지·차단 hook"},
+        {"name": "Dual-LLM 인젝션 방어", "priority": "high", "summary": "도구 결과를 다루는 LLM과 사용자 지시를 받는 LLM을 분리해 인젝션 영향 차단 (Simon Willison)"},
+        {"name": "CaMeL 권한 분리 모델", "priority": "medium", "summary": "신뢰 등급별 capability 분리로 적대적 콘텐츠가 권한 상승 못하게"},
+        {"name": "Permission mode 단계 설계", "priority": "medium", "summary": "Claude Code permission mode 같은 단계별 자동 승인/검토 게이트 모델"}
+      ],
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "harness-loop-control",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "에이전트 루프 제어",
+      "description": "하네스 7요소 중 '04 에이전트 루프'를 한 세션 내부 관점에서 패턴화. 현재 patterns.md는 세션 간(원샷 회피)만 다루고 세션 내 루프 통제는 비어 있음.",
+      "done_criteria": "각 항목이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 harness-engineering/patterns.md에 추가됨. validate-docs.sh 통과.",
+      "items": [
+        {"name": "Halting condition & max iterations", "priority": "high", "summary": "에이전트 루프 종료 조건, 최대 반복 횟수, token budget 초과 시 graceful degradation"},
+        {"name": "무한 루프·반복 도구 호출 탐지", "priority": "high", "summary": "같은 도구를 같은 인자로 N회 호출 시 차단, 루프 시그너처 탐지"},
+        {"name": "Self-critique 횟수 튜닝", "priority": "medium", "summary": "Reflexion·자체 비판 반복 횟수와 품질·비용 트레이드오프"}
+      ],
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "harness-case-studies",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "실제 하네스 비교 케이스 스터디",
+      "description": "추상 원칙에 구체 사례 매핑. Claude Code / Aider / Cursor Composer / Devin / OpenHands / SWE-agent의 7요소별 설계 차이를 표로. overview.md에 별도 섹션 또는 patterns.md 부록.",
+      "done_criteria": "6개 하네스 × 7요소 매트릭스 완성. 각 셀에 1차 출처(공식 문서·아키텍처 글) 링크. validate-docs.sh 통과.",
+      "items": [
+        {"name": "Claude Code 하네스 분석", "priority": "high", "summary": "7요소 각각에서 어떤 선택을 했는가"},
+        {"name": "Aider 하네스 분석", "priority": "high", "summary": "repo-map·diff-edit 중심 하네스의 7요소 선택"},
+        {"name": "OpenHands·SWE-agent 분석", "priority": "medium", "summary": "오픈소스 자율 코딩 하네스의 ACI(Agent-Computer Interface) 설계"},
+        {"name": "Devin·Cursor Composer 분석", "priority": "medium", "summary": "상용 자율 에이전트의 공개된 아키텍처 결정"}
+      ],
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "harness-context-pipeline-dynamic",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "컨텍스트 파이프라인 동적 주입",
+      "description": "현재 patterns 1·4(Map-first, Context-existence)가 정적 AGENTS.md만 다룸. 슬라이드 '01 컨텍스트 파이프라인'의 동적 측면을 보강.",
+      "done_criteria": "각 항목이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 harness-engineering/patterns.md에 추가됨. agent-memory-context와 중복 시 cross-link만 남기고 본문은 하네스 관점에 한정.",
+      "items": [
+        {"name": "Just-in-time 컨텍스트 로딩", "priority": "high", "summary": "필요할 때만 파일 읽기, 미리 채우지 않기, 도구를 통한 lazy loading"},
+        {"name": "Compaction 트리거 시점", "priority": "medium", "summary": "컨텍스트 압축을 언제 자동 발화시킬지 — 토큰 임계치 vs 의미 기반 트리거"},
+        {"name": "인라인 vs 외부 참조 트레이드오프", "priority": "medium", "summary": "AGENTS.md 본문에 직접 쓸지, 별도 파일 링크로 둘지"}
+      ],
+      "status": "pending",
+      "priority": "medium"
+    },
+    {
+      "id": "harness-cost-routing",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "비용 / 모델 라우팅",
+      "description": "patterns 6에서 $9→$200 (20×) 수치만 제시. 그 비용을 어떻게 낮추는가가 비어 있음. 현장 적용 시 가장 자주 받는 질문.",
+      "done_criteria": "각 항목이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 harness-engineering/patterns.md에 추가됨. validate-docs.sh 통과.",
+      "items": [
+        {"name": "역할별 모델 라우팅", "priority": "high", "summary": "Planner=cheap / Executor=expensive 분리, classifier로 작업 난이도 판단"},
+        {"name": "Prompt caching 운영 패턴", "priority": "medium", "summary": "하네스에서 cache hit 극대화하는 프롬프트 구조, 5분 TTL 활용"},
+        {"name": "Batched evaluation", "priority": "low", "summary": "Evaluator를 batch API로 돌려 비용 분할 상환"}
+      ],
+      "status": "pending",
+      "priority": "medium"
     }
   ]
 }

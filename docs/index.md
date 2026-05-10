@@ -84,6 +84,20 @@ OpenAI Codex 팀·Anthropic의 agent-first 개발 실험 결과와 설계 원칙
 
 ---
 
+#### `harness-engineering` — 7요소 중 비어 있는 칸 보강
+현재 patterns.md는 Codex 3원칙 + Anthropic 2 실패유형(원샷·조기 완료) 기반 6개 패턴만 보유. 하네스 7요소(컨텍스트 파이프라인 / 도구 / 메모리 / 루프 / 가드레일 / 평가 / 오케스트레이션) 중 통째로 비어 있는 칸을 채우는 확장.
+
+| 묶음 | 한 줄 요약 | 우선순위 |
+|---|---|---|
+| **도구 레이어 설계** | 도구 description, 도구 개수 한계·동적 로딩, MCP 설계, 결과 압축 — 7요소 #02 | 높음 |
+| **샌드박스·인젝션 방어** | devcontainer/egress 정책/시크릿 redaction/Dual-LLM/CaMeL/permission mode — 7요소 #05 시스템 측면 | 높음 |
+| **에이전트 루프 제어** | halting condition, max iterations, 무한 루프 탐지, self-critique 횟수 — 7요소 #04 세션 내부 | 높음 |
+| **하네스 케이스 스터디** | Claude Code/Aider/Cursor/Devin/OpenHands/SWE-agent × 7요소 매트릭스 | 중간 |
+| **컨텍스트 파이프라인 동적 주입** | Just-in-time 로딩, compaction 트리거, 인라인 vs 외부 참조 — 7요소 #01 동적 측면 | 중간 |
+| **비용·모델 라우팅** | Planner=cheap/Executor=expensive, prompt caching 운영, batched eval — pattern 6의 $9→$200을 낮추는 법 | 중간 |
+
+---
+
 ### 신규 주제 후보
 
 #### 그래프 기반 RAG / 지식 그래프 메모리
