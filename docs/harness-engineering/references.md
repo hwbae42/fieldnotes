@@ -40,6 +40,20 @@
 - Shinn et al., *Reflexion: Language Agents with Verbal Reinforcement Learning*, arXiv:2303.11366 (2023). https://arxiv.org/abs/2303.11366 — 메모리 Ω 1–3.
 - Madaan et al., *Self-Refine: Iterative Refinement with Self-Feedback*, arXiv:2303.17651 (2023). https://arxiv.org/abs/2303.17651 — initial iterations에서 대부분의 향상.
 
+## 컨텍스트 파이프라인 동적 주입 / 비용·모델 라우팅 (패턴 20–25 추가, 2026-05-10)
+
+### 컨텍스트 파이프라인 동적 (패턴 20–22)
+- Anthropic, *Effective context engineering for AI agents*. https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents — JIT retrieval, "art of compaction".
+- Claude Code Docs, *Manage costs effectively*. https://code.claude.com/docs/en/costs — subagent 위임, 200줄 가이드, skills 분리.
+- Claude Code Docs, *Memory*. https://code.claude.com/docs/en/memory — MEMORY.md 200줄/25KB, `@path` 임포트, `.claude/rules/` paths frontmatter, `/compact` 후 CLAUDE.md 재주입.
+- Anthropic API Docs, *Compaction*. https://platform.claude.com/docs/en/build-with-claude/compaction — beta `compact-2026-01-12`, 트리거 임계치, compaction 블록 동작.
+
+### 비용·모델 라우팅 (패턴 23–25)
+- Anthropic, *Building effective agents — Routing*. https://www.anthropic.com/research/building-effective-agents — Haiku/Sonnet 분기 routing workflow.
+- Claude API pricing. https://claude.com/platform/api — 2026-05 시점 Opus/Sonnet/Haiku 단가, prompt caching 1.25×/2×/0.1× 곱수, batch 50% 할인.
+- Anthropic, *Prompt caching*. https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching — breakpoint 배치 규칙, 모델별 최소 토큰, 20블록 lookback, silent miss 진단.
+- Anthropic, *Message Batches API*. https://docs.anthropic.com/en/docs/build-with-claude/batch-processing — 50% 할인, 100k 요청/256MB 한도, 24h SLA.
+
 ## 연관 문서 (fieldnotes 내)
 
 | 문서 | 관련 내용 |

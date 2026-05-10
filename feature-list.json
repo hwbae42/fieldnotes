@@ -127,7 +127,7 @@
         {"name": "Compaction 트리거 시점", "priority": "medium", "summary": "컨텍스트 압축을 언제 자동 발화시킬지 — 토큰 임계치 vs 의미 기반 트리거"},
         {"name": "인라인 vs 외부 참조 트레이드오프", "priority": "medium", "summary": "AGENTS.md 본문에 직접 쓸지, 별도 파일 링크로 둘지"}
       ],
-      "status": "pending",
+      "status": "done",
       "priority": "medium"
     },
     {
@@ -142,7 +142,7 @@
         {"name": "Prompt caching 운영 패턴", "priority": "medium", "summary": "하네스에서 cache hit 극대화하는 프롬프트 구조, 5분 TTL 활용"},
         {"name": "Batched evaluation", "priority": "low", "summary": "Evaluator를 batch API로 돌려 비용 분할 상환"}
       ],
-      "status": "pending",
+      "status": "done",
       "priority": "medium"
     }
   ]

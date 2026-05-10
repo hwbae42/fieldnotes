@@ -54,7 +54,7 @@ OpenAI Codex 팀·Anthropic의 agent-first 개발 실험 결과와 설계 원칙
 | 파일 | 내용 |
 |---|---|
 | [overview.md](./harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 두 실패 유형, 두 팀 비교 |
-| [patterns.md](./harness-engineering/patterns.md) | 19개 패턴 (Map-first, 기계적 제약 강제, 기술 부채 자동 수거, Context=존재, 원샷 함정 회피, Generator-Evaluator 분리, 도구 description 인체공학, 도구 카탈로그 동적 로딩, MCP 설계, 도구 결과 오프로딩, 샌드박스 격리, egress 화이트리스트, 시크릿 redaction, Dual-LLM, CaMeL, Permission mode 그라디언트, Halting condition, 무한 루프 탐지, Self-critique 횟수 튜닝) |
+| [patterns.md](./harness-engineering/patterns.md) | 25개 패턴 (Map-first, 기계적 제약 강제, 기술 부채 자동 수거, Context=존재, 원샷 함정 회피, Generator-Evaluator 분리, 도구 description 인체공학, 도구 카탈로그 동적 로딩, MCP 설계, 도구 결과 오프로딩, 샌드박스 격리, egress 화이트리스트, 시크릿 redaction, Dual-LLM, CaMeL, Permission mode 그라디언트, Halting condition, 무한 루프 탐지, Self-critique 횟수 튜닝, JIT 컨텍스트 로딩, Compaction 트리거, 인라인 vs 외부 참조, 역할별 모델 라우팅, Prompt caching 운영, Batched evaluation) |
 | [references.md](./harness-engineering/references.md) | 1차 출처 (OpenAI·Anthropic·Simon Willison·DeepMind 등) |
 
 ---
@@ -89,5 +89,3 @@ OpenAI Codex 팀·Anthropic의 agent-first 개발 실험 결과와 설계 원칙
 | 묶음 | 한 줄 요약 | 우선순위 |
 |---|---|---|
 | **하네스 케이스 스터디** | Claude Code/Aider/Cursor/Devin/OpenHands/SWE-agent × 7요소 매트릭스 | 중간 |
-| **컨텍스트 파이프라인 동적 주입** | Just-in-time 로딩, compaction 트리거, 인라인 vs 외부 참조 — 7요소 #01 동적 측면 | 중간 |
-| **비용·모델 라우팅** | Planner=cheap/Executor=expensive, prompt caching 운영, batched eval — 패턴 6의 $9→$200을 낮추는 법 | 중간 |

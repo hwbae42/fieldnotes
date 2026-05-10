@@ -75,7 +75,7 @@ bash scripts/validate-docs.sh   # 자동 검증
 | [에이전트 친화적 코드베이스](docs/agent-friendly-codebase/overview.md) | AGENTS.md 설계, 14개 패턴, MCP 통합 |
 | [에이전트 메모리 / 컨텍스트](docs/agent-memory-context/overview.md) | Context engineering, 17개 패턴 (Self-RAG·CRAG·RAPTOR·RAG-Fusion 포함) |
 | [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | LLM-as-judge, 15개 패턴 (RAGAS 포함), 트레이스 표준, eval-driven CI |
-| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, 19개 패턴 (도구 레이어·샌드박스·인젝션 방어·루프 제어 포함) |
+| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, 25개 패턴 (도구·가드레일·루프·컨텍스트·비용 라우팅 전 영역) |
 | [그래프 기반 RAG](docs/graph-rag/overview.md) | GraphRAG·LightRAG·HippoRAG 3개 패턴, 멀티홉·global query 해법 |
 
 ---
@@ -87,8 +87,6 @@ bash scripts/validate-docs.sh   # 자동 검증
 **기존 주제 확장 (남은 항목)**
 - `agent-memory-context` + Advanced RAG (남은 항목): HyDE, Modular RAG (중간) / FLARE (낮음)
 - `harness-engineering` + 하네스 케이스 스터디 (중간) — Claude Code/Aider/Cursor/Devin/OpenHands/SWE-agent × 7요소
-- `harness-engineering` + 컨텍스트 파이프라인 동적 주입 (중간) — 7요소 #01 동적 측면
-- `harness-engineering` + 비용·모델 라우팅 (중간)
 
 ---
 

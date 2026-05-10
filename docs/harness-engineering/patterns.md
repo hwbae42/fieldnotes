@@ -774,6 +774,216 @@ def stop_critique(scores: list[float], k: int = 1) -> bool:
 
 ---
 
+## 20. Just-in-time 컨텍스트 로딩
+
+### 무엇
+필요한 시점에 도구 호출로 파일·데이터를 끌어오고, 메인 컨텍스트는 가벼운 식별자(경로·쿼리·링크)만 유지하는 방식.
+
+### 언제
+- 코드베이스 탐색·디버깅처럼 어떤 파일이 필요할지 미리 알 수 없을 때.
+- 로그·데이터 덤프 등 대용량 산출물을 다뤄야 할 때.
+- 멀티턴 작업에서 메인 에이전트의 컨텍스트 오염을 막고 싶을 때.
+- AGENTS.md/CLAUDE.md 본문이 200줄을 넘기 시작할 때.
+
+### 어떻게
+Anthropic의 "just in time" 정의는 명확하다. 에이전트는 파일 경로·저장된 쿼리·웹 링크 같은 "lightweight identifiers"만 들고 있다가, 런타임에 도구로 데이터를 끌어온다. Claude Code가 `head`/`tail`로 큰 파일의 일부만 읽거나, 코드베이스를 grep으로 좁혀 들어가는 동작이 전형이다. 폴더 구조·네이밍·타임스탬프 같은 메타데이터가 어디를 읽을지 결정하는 신호가 된다.
+
+서브에이전트 격리도 같은 사상의 다른 축이다. Anthropic은 "Each subagent might explore extensively, using tens of thousands of tokens or more, but returns only a condensed, distilled summary of its work (often 1,000-2,000 tokens)"라고 못 박는다. 메인 컨텍스트는 결과만 받고, 탐색 과정의 토큰은 서브에이전트 안에서 소진된다. Claude Code 공식 문서도 "Delegate verbose operations to subagents"를 비용 절감 항목으로 명시한다.
+
+JIT의 적용 단위는 메모리 파일에도 적용된다. Claude Code 메모리 시스템은 `MEMORY.md`만 세션 시작 시 로드(첫 200줄/25KB)하고, `debugging.md` 같은 토픽 파일은 "not loaded at startup. Claude reads them on demand"로 동작한다. CLAUDE.md를 200줄 미만으로 유지하라는 권고도 같은 맥락이다 — 모든 것을 미리 채우면 정작 작업 토큰이 줄어든다.
+
+### 트레이드오프
+- 장점: 컨텍스트 슬롯을 작업 토큰에 쓸 수 있고, 노이즈 감소로 모델 집중력 유지.
+- 단점: 도구 호출 왕복(latency·tool token) 증가, 잘못된 식별자로 헛탐색 위험.
+- 실패 지점: 식별자 메타데이터(파일명·디렉터리 컨벤션)가 부실하면 탐색이 길어져 오히려 토큰 폭증 — 패턴 1 Map-first가 선결 조건.
+
+### 출처
+- [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) — JIT retrieval, 서브에이전트 1k–2k 토큰 요약 원칙.
+- [Claude Code: Manage costs effectively](https://code.claude.com/docs/en/costs) — subagent 위임, CLAUDE.md 200줄 가이드.
+- [Claude Code: Memory](https://code.claude.com/docs/en/memory) — MEMORY.md 200줄/25KB 로드, 토픽 파일 on-demand.
+
+---
+
+## 21. Compaction 트리거 시점
+
+### 무엇
+대화 이력을 요약 블록으로 치환하는 시점을 토큰 임계치로 둘 것인지, 작업 단계 경계에서 수동으로 끊을 것인지 결정하는 패턴.
+
+### 언제
+- 단일 세션이 컨텍스트 윈도우의 80% 이상을 향해 갈 때.
+- 한 작업 단계가 끝나고 다음 단계로 넘어가는 자연스러운 경계가 있을 때.
+- 자동 요약이 중요한 결정·테스트 결과를 잘라내 후행 작업을 망친 적이 있을 때.
+- API로 장기 에이전트를 직접 운영할 때.
+
+### 어떻게
+세 가지 레이어가 있다.
+
+(1) **서버사이드 자동**: Anthropic Compaction API(beta `compact-2026-01-12`)는 "Detects when input tokens exceed your specified trigger threshold"로 동작한다. 임계치를 호출자가 명시하면 Claude가 요약 블록을 생성하고, 이후 요청에서는 "API automatically drops all message blocks prior to the `compaction` block".
+
+(2) **Claude Code 자동**: 컨텍스트가 윈도우 한계에 근접하면 auto-compact가 발동한다. 트리거는 약 95% 부근(추측 — 공식 문서는 수치 미공개, "approaching context limits" 표현만 사용).
+
+(3) **수동 `/compact`**: 사용자가 단계 경계에서 직접 호출, `/compact Focus on code samples and API usage`처럼 보존할 내용을 지시할 수 있다.
+
+Anthropic은 "The art of compaction lies in the selection of what to keep versus what to discard, as overly aggressive compaction can result in the loss of subtle but critical context"라고 경고한다. 즉 임계치만 의존하면 자동 요약이 디버그 단서를 날릴 수 있다. 실무 권고는 자동 임계 도달을 기다리지 말고 작업 단계 끝(테스트 통과, PR 단위 종료)에서 수동으로 트리거하는 것이다 — Claude Code 문서도 "Use `/clear` to start fresh when switching to unrelated work"를 별도로 권한다.
+
+CLAUDE.md는 compaction을 살아남는다: "Project-root CLAUDE.md survives compaction: after `/compact`, Claude re-reads it from disk and re-injects it into the session." 단, 서브디렉터리의 CLAUDE.md는 자동 재주입되지 않으므로 압축 직후 작업 영역을 읽혀야 다시 들어온다. 자세한 자동 압축 동작은 [agent-memory-context 패턴 1](../agent-memory-context/patterns.md) cross-link.
+
+### 트레이드오프
+- 장점: 윈도우 한계를 넘겨 장기 세션 가능, 모델 집중력 유지(맥락 노이즈 제거).
+- 단점: 요약 손실 위험, 수동 트리거는 사용자 규율에 의존.
+- 실패 지점: 95% 부근에서 자동 발동되면 진행 중인 추론이 끊기고 디테일 유실 — 단계 경계에서 미리 끊는 편이 안전.
+
+### 출처
+- [Compaction — Claude API Docs](https://platform.claude.com/docs/en/build-with-claude/compaction) — 서버사이드 트리거 임계치, compaction 블록 동작.
+- [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) — "art of compaction" 인용.
+- [Claude Code: Manage costs effectively](https://code.claude.com/docs/en/costs) — `/compact` 커스텀 지시, `/clear` 구분.
+- [Claude Code: Memory](https://code.claude.com/docs/en/memory) — CLAUDE.md `/compact` 후 재주입 동작.
+
+---
+
+## 22. 인라인 vs 외부 참조 트레이드오프
+
+### 무엇
+지침을 AGENTS.md/CLAUDE.md 본문에 직접 쓸 것인지, `@path` 임포트나 `.claude/rules/`로 분리할 것인지 결정하는 패턴.
+
+### 언제
+- AGENTS.md/CLAUDE.md가 200줄을 넘어가기 시작할 때.
+- 파일 타입·디렉터리별로 다른 규칙이 필요할 때.
+- 모노레포에서 팀별 지침이 공존할 때.
+- 한 번도 안 쓰일 수 있는 워크플로 상세를 본문에 넣어야 할지 고민될 때.
+
+### 어떻게
+Claude Code의 로딩 모델을 먼저 알아야 한다. 본문은 세션 시작 시 전부 로드된다. `@path/to/import` 임포트 역시 launch에 함께 expand되어 컨텍스트로 들어간다 — 공식 문서는 "imported files still load and enter the context window at launch"라고 명시한다. 즉 **임포트는 조직화 수단이지 토큰 절감 수단이 아니다.** 토큰을 실제로 줄이려면 (a) `.claude/rules/` + `paths:` frontmatter로 매칭 파일 작업 시에만 로드되게 하거나, (b) Skill로 옮겨 호출 시점에만 로드되게 해야 한다. 공식 가이드도 "Move instructions from CLAUDE.md to skills"를 비용 절감 항목으로 분리한다.
+
+`@-mention`은 두 맥락이 있다. 메모리 파일 안의 `@README.md`는 위에 설명한 launch-time 임포트(최대 5단계 재귀). 사용자 프롬프트의 `@src/foo.ts`는 다르다 — 그 시점 한정으로 파일을 컨텍스트에 끌어온다. AGENTS.md 본문에 코드 스니펫을 박제하는 대신 `@AGENTS.md` 임포트나 경로 언급으로 두면, 에이전트는 필요할 때만 해당 파일을 읽는 JIT 흐름과 결합된다(패턴 20).
+
+판단 기준은 단순하다.
+- **항상 적용되는 규칙**(빌드 명령, 코딩 컨벤션, 핵심 아키텍처)은 본문 인라인 — lookup hop 없이 즉시 작동.
+- **경로별·작업별 규칙**(테스트 컨벤션, API 핸들러 규칙)은 `.claude/rules/`에 paths 스코프로.
+- **호출 시에만 의미 있는 워크플로**(PR 리뷰 절차, 마이그레이션 런북)는 Skill로.
+
+200줄 한도는 단순한 토큰 비용이 아니라 "Longer files consume more context and reduce adherence" — 길어질수록 모델이 덜 따른다는 관측이 근거다.
+
+### 트레이드오프
+- 장점(인라인): hop 0, 항상 적용, 디버깅 쉬움 / 장점(분리): 모듈화, 경로·작업 스코프 가능.
+- 단점(인라인): 200줄 초과 시 adherence 저하, 무관한 작업에도 토큰 소모 / 단점(분리): `@import`는 토큰 절감 효과 없음, rules/skills는 매칭·invocation 실패 시 적용 안 됨.
+- 실패 지점: "분리했으니 안전"이라는 착각 — `@import`만으로는 컨텍스트가 줄지 않음. 실제 절감은 `paths:` 스코프나 Skill 전환이 필요.
+
+### 출처
+- [Claude Code: Memory — Import additional files](https://code.claude.com/docs/en/memory) — `@path` 임포트 launch 로드, 5단계 재귀, 200줄 권고.
+- [Claude Code: Memory — Organize rules with `.claude/rules/`](https://code.claude.com/docs/en/memory) — paths frontmatter, 경로 스코프 규칙.
+- [Claude Code: Manage costs effectively](https://code.claude.com/docs/en/costs) — "Move instructions from CLAUDE.md to skills".
+
+---
+
+## 23. 역할별 모델 라우팅 (Role-based model routing)
+
+### 무엇
+Planner·classifier·요약 같은 가벼운 역할은 저가 모델(Haiku)에, 실제 코드 생성·평가 같은 무거운 역할은 고가 모델(Sonnet/Opus)에 배정해 세션당 비용을 끌어내리는 패턴.
+
+### 언제
+- Generator-Evaluator 분리(패턴 6) 적용 후 세션당 $100+ 비용이 부담스러운 단계.
+- 입력의 난이도 분포가 넓다 — "현재 디렉터리 파일 목록" 같은 단순 질의와 "리팩터링 PR" 같은 복합 질의가 섞여 있다.
+- 분류 정확도가 충분히 높다고 사전 평가한 상태(Anthropic은 "classification can be handled accurately"를 라우팅 조건으로 명시).
+- 프런트에 placeholder/Planner LLM을 둘 여유가 있다(추가 1홉 지연 허용).
+
+### 어떻게
+Anthropic *Building effective agents*의 routing workflow는 입력을 먼저 분류한 뒤 전문화된 다운스트림으로 보내는 구조다. 공식 예시가 "단순 질문은 Haiku 4.5로, 복잡한 질문은 Sonnet 4.5로 보내 성능을 최적화"한다.
+
+2026-05 시점 공시 가격(Anthropic 공식, 시점 변동 가능): Opus 4.7 $5/$25, Sonnet 4.6 $3/$15, Haiku 4.5 $1/$5 per MTok input/output. Planner를 Haiku로 두면 입력 기준 Opus 대비 5×, Sonnet 대비 3× 저렴하다. 출력 비율은 더 크다(Opus 대비 5×, Sonnet 대비 3×).
+
+실전 구성:
+1. Haiku가 작업을 `{simple, complex, refactor, debug}` 4분류로 라벨링.
+2. `simple`은 Haiku가 직접 응답, `complex/refactor`만 Sonnet/Opus로 위임.
+3. Evaluator도 Haiku로 1차 게이트 후 Opus로 escalation.
+
+Generator-Evaluator의 ~20× 프리미엄을 평균 3~5× 수준으로 압축할 수 있다(추측 — 트래픽 분포 의존). 라우팅 자체는 LangGraph의 conditional edge나 Anthropic SDK의 단일 분류 호출로 충분하다 — 별도 프레임워크 없이 if/else로도 가능.
+
+### 트레이드오프
+- 장점: 비용 곡선의 기울기를 바꾼다. Haiku로 80%를 처리할 수 있으면 평균 단가가 Sonnet 단독 대비 30~40% 수준까지 떨어진다(추측, 분포 의존).
+- 단점: 분류 오류가 곧 품질 저하. 복합 작업을 Haiku로 잘못 라우팅하면 retry 비용이 절감분을 상쇄.
+- 실패 지점: classifier 자체가 컨텍스트를 못 보고 라벨링하면 일관성이 깨진다 — 코드베이스 전체 컨텍스트가 필요한 분류는 Sonnet으로.
+- 비용 정량: Haiku 입력 $1 vs Opus $5 = 5× 차. 출력은 Haiku $5 vs Opus $25 = 5× 차. Planner 1홉 추가의 지연은 보통 1~2초.
+
+### 출처
+- [Building effective agents — Routing](https://www.anthropic.com/research/building-effective-agents) — *"Routing classifies an input and directs it to a specialized followup task"*; Haiku/Sonnet 분기 예시 공식 명시.
+- [Claude API pricing](https://claude.com/platform/api) — 2026-05 시점 모델별 MTok 단가(시점 변동 가능).
+- [agent-orchestration 패턴 7](../agent-orchestration/patterns.md) — Routing workflow 구현 상세.
+
+---
+
+## 24. Prompt caching 운영 패턴
+
+### 무엇
+시스템 프롬프트·도구 schema·대용량 컨텍스트 같이 turn마다 동일한 prefix를 5분/1시간 TTL 캐시에 올려, 두 번째 호출부터 입력 토큰 비용을 90% 절감하는 운영 패턴.
+
+### 언제
+- 하네스 세션이 다중 turn이고, 시스템 프롬프트 + 도구 정의가 합쳐 모델별 최소 캐시 토큰(예: Sonnet 4.5는 1,024, Opus/Haiku 4.5는 4,096)을 넘는다.
+- Generator-Evaluator(패턴 6)나 Self-critique(패턴 19)처럼 같은 컨텍스트로 여러 번 호출한다.
+- 골든셋 회귀 평가에서 동일 시스템 프롬프트로 수백 케이스를 돌린다.
+- Codex CLI / Claude Code류 장기 세션을 운영한다(prefix가 turn마다 바뀌면 안 됨).
+
+### 어떻게
+Anthropic 공식 가격 구조(2026-05): 5분 캐시 write는 base input의 1.25×, 1시간 캐시 write는 2×, **read(cache hit)는 0.1×**. Opus 4.7 기준 input $5 → 5분 write $6.25, 1h write $10, hit $0.50/MTok. 즉 두 번째 호출부터 캐시된 부분은 90% 절감.
+
+핵심 운영 규칙은 "**`cache_control` 마커는 요청 간 동일한 마지막 블록에 둔다**"는 것. 공식 문서 인용: *"Place the breakpoint on the last block that stays identical across requests."* 흔한 실수: 시스템 프롬프트 끝에 timestamp나 `현재 시각: ...`을 끼워 넣으면 cache hit이 0이 된다. 시간 가변 정보는 별도 user 메시지로 분리해야 한다.
+
+캐시 대상은 우선순위 순서로 (1) tool 정의(`tools` 배열), (2) system 메시지, (3) 변하지 않는 컨텍스트 prefix(코드베이스 스냅샷, AGENTS.md, 도구 schema). 다중 turn 대화는 `cache_control: {type: "ephemeral"}`로 자동 배치를 쓰면 breakpoint가 자동 전진한다. Lookback window는 breakpoint당 20블록.
+
+캐시 동작 검증은 응답의 `cache_creation_input_tokens` / `cache_read_input_tokens` 필드로. 0이면 caching이 안 일어난 것 — 최소 토큰 미달이거나 prefix가 달라진 것이다(에러 없이 silent fail).
+
+### 트레이드오프
+- 장점: cache hit 시 입력 90% 절감. Generator-Evaluator처럼 같은 컨텍스트로 N번 호출하는 패턴에 가장 큰 효과.
+- 단점: 첫 write는 1.25~2× 더 비싸다 — 1회만 호출되는 prefix는 손해.
+- 실패 지점: prefix 변동(timestamp, 사용자 ID, 동적 메뉴) → silent miss. 도구 schema의 description을 무심코 수정해도 무효화. 20블록 lookback 초과도 miss.
+- 비용 정량: Sonnet 4.6 100k 토큰 prefix를 10턴 재사용 시 — 캐시 없음 $0.30/턴 × 10 = $3. 5분 캐시 적용 시 첫 턴 $0.375 + 9턴 × $0.03 = $0.645. **약 78% 절감**.
+
+### 출처
+- [Prompt caching docs](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) — 1.25×/2×/0.1× 곱수, 모델별 최소 토큰, breakpoint 배치 규칙.
+- [Claude API pricing](https://claude.com/platform/api) — 캐시 write/read 단가(2026-05, 변동 가능).
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) — 장기 하네스에서 prefix 안정성의 중요성.
+
+---
+
+## 25. Batched evaluation
+
+### 무엇
+Evaluator·골든셋 회귀·오프라인 분석 같은 비실시간 워크로드를 Anthropic Message Batches API로 묶어 50% 할인 가격에 야간 실행하는 패턴.
+
+### 언제
+- 즉시 응답이 필요 없는 평가/분석 작업이다(CI 야간 잡, 주간 회귀, 대량 분류).
+- 한 번에 수백~수만 케이스를 돌리는 LLM-as-judge 평가(패턴 6의 Evaluator를 오프라인으로).
+- 24시간 SLA를 받아들일 수 있다.
+- 단일 호출 prefix가 안정적이라 prompt caching과 결합 가능하다(패턴 24).
+
+### 어떻게
+Anthropic Message Batches API는 비동기 처리로 **표준 가격의 50%**를 적용한다(공식 문서: *"All usage is charged at 50% of the standard API prices"*). 배치 한도는 **요청 100,000개 또는 256MB 중 먼저 도달**하는 것. 대부분 1시간 내 완료되며 24시간을 넘기면 만료. 결과는 모든 케이스 완료 시점 또는 24시간 도달 시점 중 빠른 쪽에 접근 가능.
+
+전형 구성:
+1. 골든셋 N케이스를 JSONL로 직렬화.
+2. `client.messages.batches.create({requests: [...]})`로 단일 호출 제출.
+3. 야간에 polling 또는 webhook으로 결과 수집.
+4. regression diff를 PR/이슈에 자동 코멘트.
+
+eval-driven CI 파이프라인([agent-evals-observability](../agent-evals-observability/patterns.md) 패턴 7 참조)에 그대로 꽂힌다.
+
+비용 효과: Sonnet 4.6 1,000개 평가, 평균 입력 5k·출력 1k 토큰 가정 시 — 표준 $15 + $15 = $30, 배치 $15. **추가로 prompt caching 결합 시 입력 측 90%까지 절감 가능**(공식 문서가 stacking 허용 명시). 단, 배치 내부에서는 `max_tokens: 0` cache pre-warming 미지원 — ephemeral 엔트리가 후속 요청 전에 만료될 가능성 때문.
+
+실시간 평가에는 부적합 — Generator-Evaluator를 인라인으로 돌리는 케이스(패턴 6)는 표준 API로 가야 한다. 배치는 "야간 회귀, 주간 리포트, 신모델 사전 검증" 영역.
+
+### 트레이드오프
+- 장점: 50% 할인이 즉시 적용, prompt caching과 stacking 가능, 대규모 병렬 처리.
+- 단점: 동기 결과 불가 — 인터랙티브 루프에 못 쓴다. 24시간 만료 — 수요 폭증 시 expire 위험 공식 명시.
+- 실패 지점: 배치 내 일부 요청 실패는 개별 처리 — 전체 재실행 로직 필요. cache pre-warming 미지원으로 첫 요청만 cache write 비용 부담.
+- 비용 정량: Sonnet 1k 케이스 평가 $30 → $15 (50% off). prompt caching 결합 시 추가로 입력 측 90% 절감 가능 — 이론적으로 표준 대비 5% 수준까지 가능.
+
+### 출처
+- [Message Batches API docs](https://docs.anthropic.com/en/docs/build-with-claude/batch-processing) — 50% 할인, 100k 요청/256MB 한도, 24h SLA, 1h 평균 완료, `max_tokens: 0` 미지원.
+- [Claude API pricing](https://claude.com/platform/api) — 배치 50% 할인 명시(2026-05, 변동 가능).
+- [agent-evals-observability 패턴 카탈로그](../agent-evals-observability/patterns.md) — eval-driven CI와 골든셋 회귀 통합.
+
+---
+
 ## 패턴 선택 가이드
 
 | 증상 | 적용할 패턴 |
@@ -791,3 +1001,7 @@ def stop_critique(scores: list[float], k: int = 1) -> bool:
 | 외부 콘텐츠를 읽고 도구 호출하는 워크플로 | 패턴 14 (Dual-LLM) → 고위험이면 패턴 15 (CaMeL) |
 | 에이전트가 동일 도구 호출을 반복 | 패턴 18 (시그니처 탐지) → 패턴 17 (max_iterations 안전망) |
 | critique 횟수가 비용만 키우고 품질은 정체 | 패턴 19 (곡선 측정 후 임계값) |
+| AGENTS.md가 200줄을 넘어가며 adherence 저하 | 패턴 22 (`.claude/rules/` 분리) → 패턴 20 (JIT) |
+| 컨텍스트가 윈도우 95%에 가까워 자동 압축이 디테일을 날림 | 패턴 21 (단계 경계에서 수동 `/compact`) |
+| 세션당 비용이 $100+ — 절감 시급 | 패턴 23 (모델 라우팅) + 패턴 24 (prompt caching) |
+| 골든셋 회귀 평가 비용이 큼 | 패턴 25 (Message Batches 50% + caching stacking) |
