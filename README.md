@@ -16,6 +16,7 @@
 | [코딩 에이전트 친화적인 코드베이스](docs/agent-friendly-codebase/overview.md) | 14개 | 25+ |
 | [에이전트 메모리 / 컨텍스트 관리](docs/agent-memory-context/overview.md) | 13개 | 19개 |
 | [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | 14개 | 50+ |
+| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | 6개 | 3개 |
 
 전체 목록 및 차후 조사 후보 → [`docs/index.md`](docs/index.md)
 
