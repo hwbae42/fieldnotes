@@ -12,64 +12,35 @@ fieldnotes 세션 핸드오프 파일
     [x] docs/agent-friendly-codebase/ (14 패턴)
     [x] docs/agent-memory-context/ (13 패턴)
     [x] docs/agent-evals-observability/ (14 패턴)
-    [x] AGENTS.md 작성
-    [x] CLAUDE.md 생성 (Codex 팀 "Map을 줘라" 패턴)
-    [x] feature-list.json 생성 (Anthropic harness 패턴)
-    [x] claude-progress.txt 생성 (세션 간 핸드오프)
-    [x] scripts/validate-docs.sh 생성 (아키텍처 제약 강제)
-    [x] scripts/find-tech-debt.sh 생성 (기술 부채 탐지)
+    [x] docs/harness-engineering/ (6 패턴)
+    [x] AGENTS.md / CLAUDE.md / RESEARCH-METHOD.md / feature-list.json / scripts
+
+세션 1 (2026-05-10): 6개 high-priority 항목 일괄 처리
+  완료:
+    [x] advanced-rag-retrieval — Self-RAG, CRAG, RAPTOR, RAG-Fusion (#14~#17 in agent-memory-context)
+    [x] ragas-eval — RAGAS (#15 in agent-evals-observability)
+    [x] graph-based-rag — 신규 주제 docs/graph-rag/ (overview + 3 패턴 + references)
+    [x] harness-tool-layer — 도구 description, 동적 로딩, MCP 설계, 결과 오프로딩 (#7~#10)
+    [x] harness-sandbox-security — 샌드박스, egress, 시크릿, Dual-LLM, CaMeL, permission mode (#11~#16)
+    [x] harness-loop-control — Halting condition, 루프 탐지, self-critique 튜닝 (#17~#19)
+    [x] validate-docs.sh 통과
+    [x] docs/index.md / AGENTS.md / feature-list.json 동기화
 
 ────────────────────────────────────────────────────────
 현재 상태
 ────────────────────────────────────────────────────────
 
-모든 기존 주제 완료. 하네스 파일 추가 완료.
-다음 세션은 아래 "다음 작업 후보"에서 선택.
+모든 high-priority 항목 완료. 6개 주제 카탈로그(agent-orchestration/agent-friendly-codebase/
+agent-memory-context/agent-evals-observability/harness-engineering/graph-rag) 보유.
+패턴 총 79개(11+14+17+15+19+3).
+
+다음 세션은 medium 우선순위 또는 신규 주제로.
 
 ────────────────────────────────────────────────────────
-다음 세션 시작 방법 (3단계)
+다음 작업 후보 (모두 medium)
 ────────────────────────────────────────────────────────
 
-1. 이 파일 읽기 — 현재 상태 파악
-2. feature-list.json에서 status=pending, priority=high 항목 선택
-3. 선택한 항목 status를 "in_progress"로 변경 후 작업 시작
-
-────────────────────────────────────────────────────────
-다음 작업 후보 (feature-list.json 참조)
-────────────────────────────────────────────────────────
-
-[RAG·평가 라인]
-🔴 [HIGH] advanced-rag-retrieval
-   대상: agent-memory-context/patterns.md에 패턴 추가
-   항목: Self-RAG, CRAG, RAPTOR, RAG-Fusion (high)
-         HyDE, Modular RAG (medium), FLARE (low)
-
-🔴 [HIGH] ragas-eval
-   대상: agent-evals-observability/patterns.md에 패턴 추가
-   항목: RAGAS
-
-🔴 [HIGH] graph-based-rag
-   대상: docs/graph-rag/ 신규 주제 생성
-   항목: GraphRAG, LightRAG (high), HippoRAG (medium)
-
-[하네스 7요소 보강 라인 — 2026-05-10 추가]
-배경: 하네스 7요소(컨텍스트 / 도구 / 메모리 / 루프 / 가드레일 / 평가 / 오케스트레이션)
-중 도구·시스템 가드레일·세션 내부 루프 칸이 통째로 비어 있음.
-Codex 3원칙 + Anthropic 2 실패유형(현 6개 패턴)은 "원칙·세션 간"에 집중.
-아래 6개 항목으로 슬라이드의 7요소를 균형 있게 채운다.
-
-🔴 [HIGH] harness-tool-layer
-   대상: harness-engineering/patterns.md
-   항목: 도구 description 설계, 도구 개수 한계·동적 로딩, MCP 설계, 결과 압축
-
-🔴 [HIGH] harness-sandbox-security
-   대상: harness-engineering/patterns.md
-   항목: 샌드박스 격리, egress 정책, 시크릿 redaction, Dual-LLM, CaMeL, permission mode
-
-🔴 [HIGH] harness-loop-control
-   대상: harness-engineering/patterns.md
-   항목: halting condition·max iterations, 무한 루프 탐지, self-critique 횟수
-
+[하네스 케이스 스터디 라인]
 🟡 [MEDIUM] harness-case-studies
    대상: harness-engineering/overview.md (또는 patterns.md 부록)
    항목: Claude Code / Aider / Cursor Composer / Devin / OpenHands / SWE-agent × 7요소 매트릭스
@@ -81,6 +52,17 @@ Codex 3원칙 + Anthropic 2 실패유형(현 6개 패턴)은 "원칙·세션 간
 🟡 [MEDIUM] harness-cost-routing
    대상: harness-engineering/patterns.md
    항목: 역할별 모델 라우팅, prompt caching 운영, batched eval
+
+[RAG 확장 라인 — medium/low]
+🟡 advanced-rag-retrieval 잔여: HyDE, Modular RAG (medium), FLARE (low)
+
+────────────────────────────────────────────────────────
+다음 세션 시작 방법 (3단계)
+────────────────────────────────────────────────────────
+
+1. 이 파일 읽기 — 현재 상태 파악
+2. feature-list.json에서 status=pending 항목 선택 (medium부터)
+3. 선택한 항목 status를 "in_progress"로 변경 후 작업 시작
 
 ────────────────────────────────────────────────────────
 작업 완료 체크리스트 (각 세션 후 수행)

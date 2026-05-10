@@ -95,6 +95,13 @@
 - **"Agentic Context Engineering" (ACE)** (arxiv 2510.04618, 2025)
   컨텍스트를 evolving playbook으로 보고 generation/reflection/curation으로 진화. 아직 학술 단계.
 
+## Advanced RAG retrieval (패턴 14–17 추가, 2026-05-10)
+
+- **Self-RAG** — Asai et al., *Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection*, arXiv:2310.11511 (ICLR 2024). https://arxiv.org/abs/2310.11511 — reflection token 4종 정의, project page https://selfrag.github.io/.
+- **CRAG** — Yan et al., *Corrective Retrieval Augmented Generation*, arXiv:2401.15884 (2024). https://arxiv.org/abs/2401.15884 — Correct/Ambiguous/Incorrect 3분류 + web search 보완. LangGraph 구현 튜토리얼: https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_crag/.
+- **RAPTOR** — Sarthi et al., *RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval*, arXiv:2401.18059 (Stanford, ICLR 2024). https://arxiv.org/abs/2401.18059 — UMAP+GMM 클러스터링 트리, collapsed tree 검색이 traversal보다 우수. LlamaIndex Pack: https://docs.llamaindex.ai/en/stable/examples/retrievers/raptor/.
+- **RAG-Fusion** — Raudaschl, *Forget RAG, the Future is RAG-Fusion* (Medium, 2023). https://medium.com/data-science/forget-rag-the-future-is-rag-fusion-1147298d8ad1 — 멀티쿼리 + RRF(k=60) 명명 원본. 후속 평가: Rackauckas, arXiv:2402.03367.
+
 ## 미해결 / 솔직한 인지
 
 자료마다 인정하는, 2026.05 시점에 답이 없는 영역.

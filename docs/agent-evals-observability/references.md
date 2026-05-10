@@ -333,6 +333,12 @@
 
 ---
 
+## RAGAS — RAG 평가 (패턴 15 추가, 2026-05-10)
+
+- **Es et al., RAGAS** — *RAGAS: Automated Evaluation of Retrieval Augmented Generation*, arXiv:2309.15217 (2023). https://arxiv.org/abs/2309.15217 — reference-free 자동 평가 프레임워크 원논문.
+- **RAGAS 공식 문서 — Available Metrics**. https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/ — Faithfulness/Answer Relevancy/Context Precision/Context Recall/Answer Correctness 정의·산식.
+- 개별 지표: Faithfulness https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/, Answer Relevancy https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/answer_relevance/, Context Precision https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/, Context Recall https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/.
+
 ## 인용 가이드
 
 본 fieldnotes 안에서 위 자료를 인용할 때:

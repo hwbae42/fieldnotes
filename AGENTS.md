@@ -73,9 +73,10 @@ bash scripts/validate-docs.sh   # 자동 검증
 |---|---|
 | [에이전트 오케스트레이션](docs/agent-orchestration/overview.md) | 멀티 에이전트 설계, 11개 패턴, 하네스 프레임워크 비교 |
 | [에이전트 친화적 코드베이스](docs/agent-friendly-codebase/overview.md) | AGENTS.md 설계, 14개 패턴, MCP 통합 |
-| [에이전트 메모리 / 컨텍스트](docs/agent-memory-context/overview.md) | Context engineering, 13개 패턴, RAG 연동, 압축 기법 |
-| [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | LLM-as-judge, 14개 패턴, 트레이스 표준, eval-driven CI |
-| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, 6개 패턴, 1M줄·0 수동 코드 달성 방법론 |
+| [에이전트 메모리 / 컨텍스트](docs/agent-memory-context/overview.md) | Context engineering, 17개 패턴 (Self-RAG·CRAG·RAPTOR·RAG-Fusion 포함) |
+| [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | LLM-as-judge, 15개 패턴 (RAGAS 포함), 트레이스 표준, eval-driven CI |
+| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, 19개 패턴 (도구 레이어·샌드박스·인젝션 방어·루프 제어 포함) |
+| [그래프 기반 RAG](docs/graph-rag/overview.md) | GraphRAG·LightRAG·HippoRAG 3개 패턴, 멀티홉·global query 해법 |
 
 ---
 
@@ -83,18 +84,11 @@ bash scripts/validate-docs.sh   # 자동 검증
 
 자세한 항목과 우선순위는 `feature-list.json` 참고.
 
-**기존 주제 확장**
-- `agent-memory-context` + Advanced RAG: Self-RAG, CRAG, RAPTOR, RAG-Fusion (높음) / HyDE, Modular RAG (중간) / FLARE (낮음)
-- `agent-evals-observability` + RAGAS (높음)
-- `harness-engineering` + 도구 레이어 설계 (높음) — 7요소 #02
-- `harness-engineering` + 샌드박스·인젝션 방어 (높음) — 7요소 #05 시스템 측면
-- `harness-engineering` + 에이전트 루프 제어 (높음) — 7요소 #04 세션 내부
+**기존 주제 확장 (남은 항목)**
+- `agent-memory-context` + Advanced RAG (남은 항목): HyDE, Modular RAG (중간) / FLARE (낮음)
 - `harness-engineering` + 하네스 케이스 스터디 (중간) — Claude Code/Aider/Cursor/Devin/OpenHands/SWE-agent × 7요소
 - `harness-engineering` + 컨텍스트 파이프라인 동적 주입 (중간) — 7요소 #01 동적 측면
 - `harness-engineering` + 비용·모델 라우팅 (중간)
-
-**신규 주제**
-- 그래프 기반 RAG — GraphRAG, LightRAG, HippoRAG (높음)
 
 ---
 

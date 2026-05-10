@@ -579,6 +579,44 @@ production 트래픽이 늘고 incidents가 *어떤 종류든* 중요해질 때 
 
 ---
 
+## 15. RAGAS — RAG 전용 평가 프레임워크
+
+### 무엇
+검색 증강 생성(Retrieval-Augmented Generation, RAG) 파이프라인을 검색 품질·생성 품질 양 축으로 자동 평가하는 오픈소스 프레임워크. 대형언어모델을 심판(LLM-as-judge)으로 써서 정답 라벨 없이도 일부 지표를 산출한다.
+
+### 언제
+- RAG 파이프라인을 운영 중이며 retriever와 generator를 분리해 진단하고 싶을 때
+- 사람이 라벨링한 골든셋 규모가 작아 reference-free 지표가 필요할 때
+- 검색기 교체·프롬프트 변경의 영향을 회귀 테스트로 자동화하고 싶을 때
+- 환각(faithfulness) 회귀를 지속적 통합(CI) 단계에서 막고 싶을 때
+
+### 어떻게
+RAGAS는 `(user_input, retrieved_contexts, response, reference)` 4튜플을 입력으로 받아 지표별로 LLM 호출을 수행한다. 핵심 5개 지표는 다음과 같다.
+
+| 지표 | 측정 대상 | 계산 방식 | reference 필요 |
+|---|---|---|---|
+| Faithfulness | 답변이 검색 컨텍스트와 사실적으로 일치하는가 | 답변에서 주장(claim) 추출 → 컨텍스트로 추론 가능한 비율 | 불필요 |
+| Answer Relevancy | 답변이 질문을 직접 다루는가 | 답변에서 역질문 N개 생성 → 원 질문 임베딩과 코사인 유사도 평균 | 불필요 |
+| Context Precision | 관련 청크가 상위에 랭크되는가 | LLM이 청크별 관련성 판정 후 순위 가중 정밀도 | `WithReference` 변형은 필요 |
+| Context Recall | 정답에 필요한 정보를 빠짐없이 검색했는가 | reference 주장 중 컨텍스트가 뒷받침하는 비율 | 필요 |
+| Answer Correctness | 답변이 정답과 의미·사실 면에서 일치하는가 | 의미 유사도 + 사실 중첩 가중합 | 필요 |
+
+reference-free 지표(Faithfulness, Answer Relevancy, `LLMContextPrecisionWithoutReference`)만으로 운영 트래픽 샘플링 평가가 가능하고, 골든셋이 있으면 Context Recall·Answer Correctness까지 더해 reference-based 평가로 보강한다. 비-LLM 변형(`NonLLMContextPrecisionWithReference`, ID 기반)은 Levenshtein 거리·문서 ID 매칭으로 비용을 낮춘다.
+
+### 트레이드오프
+- 장점: RAG 특화 지표 세트가 표준화되어 retriever/generator 책임 분리 진단이 쉽다. reference-free 지표 덕분에 라벨 없는 운영 데이터로도 평가 가능. LangChain·LlamaIndex와 통합되어 도입 비용이 낮다.
+- 단점: LLM-as-judge 기반이라 심판 모델의 편향(자기 모델 선호, 길이 편향)과 비결정성을 그대로 상속한다. 매 평가마다 다수 LLM 호출이 발생해 비용·지연이 크다. Faithfulness의 주장 추출은 모델·프롬프트 버전 변경에 민감해 시계열 비교 시 baseline 고정이 필요하다.
+- 부적합: 도메인 특수 사실성(의료·법률) 정밀 검증에는 단독으로 부족하며 도메인 검증기와 병행해야 한다. retrieval이 없는 순수 생성 태스크에는 적용 의미가 적다.
+
+### 출처
+- [Es et al., "RAGAS: Automated Evaluation of Retrieval Augmented Generation" (arxiv 2309.15217)](https://arxiv.org/abs/2309.15217) — RAGAS 원논문, reference-free 자동 평가 프레임워크 제안.
+- [RAGAS 공식 문서 — Available Metrics](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/) — 지표 카탈로그 진입점.
+- [Faithfulness](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/) — claim 추출·컨텍스트 추론 산식.
+- [Answer Relevancy](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/answer_relevance/) — 역질문 생성·임베딩 코사인 방식.
+- [Context Precision](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/) — `WithReference`/`WithoutReference`/ID 기반 변형.
+
+---
+
 ## 패턴 간 관계 — 한 에이전트의 평가 시스템 만들기
 
 위 14개를 다 쓰는 게 아니라, 단계적으로 쌓는다. 보통의 진행 순서:

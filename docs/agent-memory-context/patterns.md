@@ -342,6 +342,128 @@
 
 ---
 
+## 14. Self-RAG (Self-Reflective Retrieval-Augmented Generation)
+
+### 무엇
+모델이 검색 필요 여부와 검색·생성 품질을 reflection token(자기성찰 토큰) 4종으로 직접 판단하며 적응적으로 RAG를 수행하는 기법.
+
+### 언제
+- 단순 질의에선 LLM 파라미터 지식만으로 답하고, 복잡 질의에서만 검색해 지연·비용을 줄이고 싶을 때
+- 검색된 구절이 실제로 답을 지지하는지(citation faithfulness) 검증해야 하는 long-form 생성·사실 검증 작업
+- "항상 retrieve" 정책이 오히려 환각을 유도하는 케이스(검색 노이즈가 잘못된 인용을 만들어내는 상황)
+
+### 어떻게
+LM 어휘에 4종 특수 토큰을 추가하고, GPT-4 distillation으로 만든 critic 데이터로 LM 자체를 학습시킨다. 추론은 다음 흐름으로 진행된다.
+
+1. **Retrieve 토큰** — 입력·이전 생성 결과를 보고 `Retrieve=Yes/No/Continue` 결정
+2. 필요 시 검색기로 top-k 문서 회수, 각 문서를 병렬로 디코딩 분기
+3. **ISREL 토큰** — 각 구절의 관련성 평가, 무관 구절 가지치기
+4. **ISSUP 토큰** — 생성된 문장이 검색 구절에 의해 지지되는지 평가
+5. **ISUSE 토큰** — 응답 전체의 유용성을 1~5로 점수화
+6. tree-decoding/beam search로 reflection token 점수의 가중합이 최대인 분기 선택
+
+### 트레이드오프
+- 장점: Llama2-7B/13B 기반 Self-RAG가 ChatGPT 및 retrieval-augmented Llama2-chat을 PopQA·TriviaQA·사실검증·ASQA에서 상회, 인용 정밀도(citation precision) 큰 폭 향상.
+- 단점: critic용 학습 데이터 구축과 LM 파인튜닝이 필요해 plug-and-play 불가, 추론 시 토큰 분기 평가로 디코딩 비용 증가.
+- 비용: 분기 평가로 토큰 수가 1.5~2배 증가하는 보고가 있음(추측: 구현·k에 따라 변동).
+
+### 출처
+- [Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection (arxiv 2310.11511)](https://arxiv.org/abs/2310.11511) — Asai et al., ICLR 2024 원논문.
+- [Self-RAG 프로젝트 페이지](https://selfrag.github.io/) — reflection token 4종 정의와 추론 흐름 공식 해설.
+
+---
+
+## 15. CRAG (Corrective Retrieval-Augmented Generation)
+
+### 무엇
+경량 retrieval evaluator(검색 평가기)로 회수 결과를 Correct/Ambiguous/Incorrect 3종으로 분류하고, 부족·오류 시 web search로 보완하는 교정형 RAG.
+
+### 언제
+- 정적 코퍼스가 불완전하거나 시의성이 떨어져 회수 실패가 잦은 도메인(뉴스 QA, 최신 사실)
+- 기존 RAG 파이프라인에 학습 없이 plug-and-play로 견고성을 추가하고 싶을 때
+- 회수 노이즈가 환각을 유발하는 상황에서 retrieve 결과를 수동적으로 받지 않고 능동적으로 검증·교정하고 싶을 때
+
+### 어떻게
+T5-large 같은 가벼운 evaluator를 학습시켜 (질의, 문서) 쌍의 관련성 점수를 매기고 두 임계값으로 3분류한다.
+
+1. **Correct** (상위 점수 ≥ 상한): decompose-then-recompose로 문서를 strip 단위로 쪼개 무관 문장을 제거하고 재조립해 핵심 지식만 남김
+2. **Incorrect** (모든 점수 < 하한): 코퍼스 전체를 폐기하고 LLM이 질의를 web search용으로 재작성해 외부 검색(예: Google) 결과로 대체
+3. **Ambiguous** (중간): 정제된 코퍼스 결과 + web search 결과를 모두 결합해 안전하게 보강
+4. 최종 정제된 knowledge를 generator LM에 주입
+
+### 트레이드오프
+- 장점: PopQA·Biography·PubHealth·Arc-Challenge에서 기존 RAG 및 Self-RAG 대비 일관 향상, generator 재학습 불필요(plug-and-play).
+- 단점: web search 호출 시 외부 API 의존·법적 제약·지연 추가, evaluator 정확도가 전체 품질의 상한을 결정.
+- 비용: Incorrect/Ambiguous 분기에서 web search 호출당 수백 ms~수 초 추가, evaluator 자체는 수십 ms 수준.
+
+### 출처
+- [Corrective Retrieval Augmented Generation (arxiv 2401.15884)](https://arxiv.org/abs/2401.15884) — Yan et al. 원논문.
+- [LangGraph CRAG 튜토리얼](https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_crag/) — 분기 로직과 web search 보완 구현 예시.
+
+---
+
+## 16. RAPTOR (Recursive Abstractive Processing for Tree-Organized Retrieval)
+
+### 무엇
+문서 청크를 재귀적으로 클러스터링·요약해 다단계 추상화 트리를 구축하고, 트리에서 검색해 long-document QA를 강화하는 인덱스 기법.
+
+### 언제
+- 단일 답변이 여러 청크·여러 섹션을 통합해야 하는 multi-hop·thematic 질문(예: "이 소설 전체에서 인물의 변화는?")
+- 책·기술 매뉴얼·법률 문서처럼 길이가 수만 토큰 이상이라 flat top-k 청크로는 전역 맥락이 손실되는 코퍼스
+- 인덱싱은 한 번에 비싸도 되지만 추론은 일반 RAG처럼 빠르게 유지하고 싶을 때
+
+### 어떻게
+빌드 시 다음 절차를 leaf 수가 작아질 때까지 반복한다.
+
+1. 원문을 100토큰 청크로 분할 → 임베딩(SBERT 등)
+2. **Soft clustering**: UMAP 차원 축소 + GMM(Gaussian Mixture Model)로 한 청크가 여러 클러스터에 속할 수 있게 군집화
+3. 각 클러스터를 LLM(GPT-3.5/4)으로 요약, 요약문이 다음 레벨의 노드가 됨
+4. 요약 노드들을 다시 임베딩·클러스터링·요약, 루트가 될 때까지 재귀
+
+검색 시 두 방식 중 선택:
+- **Tree traversal**: 루트부터 레벨별 top-k 자식으로 하향 탐색
+- **Collapsed tree**: 모든 레벨 노드를 한 풀에 펼쳐 cosine 유사도 top-k 회수(논문 권장, 더 우수)
+
+### 트레이드오프
+- 장점: GPT-4 결합 시 QuALITY 벤치마크 절대 정확도 +20%p로 SOTA, NarrativeQA·QASPER에서도 일관 향상.
+- 단점: 인덱싱 시 LLM 요약 호출이 노드 수만큼 발생해 초기 비용·시간 큼, 원문 변경 시 전체 재구축 필요.
+- 비용: 1만 청크 코퍼스 기준 요약 호출 수천 회(추측: 클러스터 분기율 ~10), 검색 자체는 일반 dense retrieval과 동일 지연.
+
+### 출처
+- [RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval (arxiv 2401.18059)](https://arxiv.org/abs/2401.18059) — Sarthi et al., Stanford, ICLR 2024.
+- [LlamaIndex RAPTOR Pack](https://docs.llamaindex.ai/en/stable/examples/retrievers/raptor/) — collapsed tree·tree traversal 두 모드 구현 레퍼런스.
+
+---
+
+## 17. RAG-Fusion
+
+### 무엇
+원 질의에서 LLM으로 유사 질의 N개를 생성해 병렬 검색한 뒤 Reciprocal Rank Fusion(RRF, 상호 순위 융합)으로 재랭킹하는 멀티쿼리 RAG 기법.
+
+### 언제
+- 사용자 질의가 모호하거나 어휘가 코퍼스와 어긋나 단일 쿼리 임베딩으로는 회수율이 낮을 때(vocabulary mismatch)
+- 다면적 질문(여러 측면을 동시에 묻는 질의)에서 어느 한 측면도 빠뜨리지 않는 회수가 필요할 때
+- 학습·인덱스 변경 없이 inference-time만 손봐서 recall을 끌어올리고 싶은 경우
+
+### 어떻게
+4단계로 동작한다.
+
+1. **Multi-query generation**: LLM에 "원 질의의 의미를 보존한 변형 질의 4개를 만들라" 프롬프트로 N개 변형 생성
+2. **Parallel vector search**: 원 질의 + 변형 N개를 각각 검색기에 보내 각 쿼리당 top-k 결과 리스트 획득
+3. **Reciprocal Rank Fusion**: 문서 d의 최종 점수를 `score(d) = Σ_q 1 / (k + rank_q(d))`로 계산(보통 k=60). 한 문서가 여러 쿼리에서 상위에 등장할수록 가중 합산
+4. RRF 점수 상위 문서를 generator LM의 컨텍스트로 주입
+
+### 트레이드오프
+- 장점: 단일 쿼리 RAG 대비 recall·다양성 향상, 인덱스 재구축 불필요해 기존 파이프라인에 즉시 추가 가능, RRF는 학습 파라미터 없이 안정적.
+- 단점: 쿼리 생성 LLM 호출 1회 + 검색 N+1회로 지연·비용 증가, 변형 쿼리가 원 의도에서 drift하면 무관 문서가 상위로 올라올 수 있음.
+- 비용: N=4 기준 검색 호출 5배, LLM 쿼리 생성 토큰 ~100, 전체 지연 1.5~2배 증가(추측: 구현·동시성에 따라 변동).
+
+### 출처
+- [Forget RAG, the Future is RAG-Fusion (Adrian H. Raudaschl, 2023)](https://medium.com/data-science/forget-rag-the-future-is-rag-fusion-1147298d8ad1) — 기법을 처음 명명한 원본 글, RRF 공식과 동기 설명.
+- [RAG-Fusion: a New Take on Retrieval-Augmented Generation (arxiv 2402.03367)](https://arxiv.org/abs/2402.03367) — Rackauckas의 후속 정량 평가 논문.
+
+---
+
 ## 패턴 조합 — 실전 레시피 3가지
 
 ### A. 코딩 에이전트 (개인/팀)
