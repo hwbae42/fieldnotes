@@ -1,0 +1,54 @@
+{
+  "_schema": "fieldnotes-feature-list-v1",
+  "_description": "Anthropic harness 패턴 적용: 세션 간 작업 목록을 구조화. 새 세션 시작 시 status=pending, priority=high 항목부터 선택.",
+  "_usage": "작업 선택 → status를 'in_progress'로 변경 → 작업 완료 → status를 'done'으로 변경 + claude-progress.txt 업데이트 + docs/index.md 업데이트",
+  "topics": [
+    {
+      "id": "advanced-rag-retrieval",
+      "type": "extend",
+      "target_doc": "agent-memory-context",
+      "title": "Advanced RAG 검색 패턴",
+      "description": "Self-RAG, CRAG, RAPTOR, RAG-Fusion, HyDE, Modular RAG, FLARE를 agent-memory-context/patterns.md에 패턴으로 추가",
+      "done_criteria": "각 기법이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 patterns.md에 추가됨. validate-docs.sh 통과.",
+      "items": [
+        {"name": "Self-RAG", "priority": "high", "summary": "에이전트가 검색 필요 여부를 스스로 판단·비판하는 adaptive retrieval"},
+        {"name": "CRAG", "priority": "high", "summary": "검색 결과 품질을 평가하고 부족하면 web 검색으로 보완하는 교정 루프"},
+        {"name": "RAPTOR", "priority": "high", "summary": "재귀적 요약으로 계층 트리 인덱스를 구성하는 long-doc 검색 기법"},
+        {"name": "RAG-Fusion", "priority": "high", "summary": "멀티 쿼리 생성 + RRF 재랭킹으로 검색 강건성 향상"},
+        {"name": "HyDE", "priority": "medium", "summary": "가상의 답변 문서를 생성해 임베딩 공간 미스매치를 줄이는 쿼리 증강"},
+        {"name": "Modular RAG", "priority": "medium", "summary": "RAG 컴포넌트를 독립 모듈로 조합하는 아키텍처 프레임워크"},
+        {"name": "FLARE", "priority": "low", "summary": "생성 중 불확실 구간에서 능동적으로 검색을 트리거하는 interleaved retrieval"}
+      ],
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "ragas-eval",
+      "type": "extend",
+      "target_doc": "agent-evals-observability",
+      "title": "RAGAS — RAG 전용 평가 프레임워크",
+      "description": "RAGAS를 agent-evals-observability/patterns.md에 패턴으로 추가",
+      "done_criteria": "RAGAS가 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 patterns.md에 추가됨. validate-docs.sh 통과.",
+      "items": [
+        {"name": "RAGAS", "priority": "high", "summary": "Faithfulness / Answer Relevancy / Context Precision 등 RAG 특화 지표를 자동 측정하는 평가 프레임워크"}
+      ],
+      "status": "pending",
+      "priority": "high"
+    },
+    {
+      "id": "graph-based-rag",
+      "type": "new",
+      "target_doc": "graph-rag",
+      "title": "그래프 기반 RAG / 지식 그래프 메모리",
+      "description": "GraphRAG·LightRAG·HippoRAG를 신규 주제 docs/graph-rag/ 로 정리 (overview.md + patterns.md + references.md 3개 파일 생성)",
+      "done_criteria": "docs/graph-rag/ 에 3개 파일 생성, 각 기법이 패턴 형식 완비, docs/index.md에 주제 추가, validate-docs.sh 통과.",
+      "items": [
+        {"name": "GraphRAG", "priority": "high", "summary": "엔티티 그래프 + community summary로 global/local 쿼리 지원 (Microsoft)"},
+        {"name": "LightRAG", "priority": "high", "summary": "경량 그래프 + dual-level 검색으로 GraphRAG 비용 절감"},
+        {"name": "HippoRAG", "priority": "medium", "summary": "해마 기억 구조에서 착안한 KG 기반 RAG — episodic vs semantic 기억 분리"}
+      ],
+      "status": "pending",
+      "priority": "high"
+    }
+  ]
+}

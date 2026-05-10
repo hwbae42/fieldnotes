@@ -19,7 +19,9 @@
 
 ### 어떻게
 
-루트에 `AGENTS.md` 두고 Claude Code용 CLAUDE.md는 다음과 같이 import만:
+**방식 A — @import (Claude-specific 기능이 있을 때)**
+
+루트에 `AGENTS.md` 두고 CLAUDE.md는 import + 추가만:
 
 ```markdown
 # CLAUDE.md
@@ -31,6 +33,14 @@
 ```
 
 CLAUDE.md의 `@path/to/import` 구문은 Anthropic 공식 best-practices가 명시적으로 지원하는 문법이다.
+
+**방식 B — 심링크 (Claude-specific 기능이 없을 때)**
+
+```bash
+ln -s AGENTS.md CLAUDE.md
+```
+
+CLAUDE.md를 AGENTS.md 심링크로 처리. Claude Code와 AGENTS.md 지원 도구 모두 같은 파일을 읽고, 관리 파일은 하나. 도구별 고유 기능이 필요 없는 단순 프로젝트나 리서치 레포에 적합.
 
 ### 트레이드오프
 - AGENTS.md는 표준이지만 Claude-specific 기능(import, path-scoped rules, hooks 연동)이 빈약하다. Claude Code의 native 기능을 적극 쓸 거면 분리 비용을 받아들여야 한다.

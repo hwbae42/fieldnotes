@@ -1,0 +1,62 @@
+fieldnotes 세션 핸드오프 파일
+형식: Anthropic "Effective Harnesses for Long-Running Agents" 패턴 적용
+마지막 업데이트: 2026-05-10
+
+────────────────────────────────────────────────────────
+완료된 세션
+────────────────────────────────────────────────────────
+
+세션 0 (2026-05-10): 레포 초기화 + 하네스 엔지니어링 적용
+  완료:
+    [x] docs/agent-orchestration/ (11 패턴)
+    [x] docs/agent-friendly-codebase/ (14 패턴)
+    [x] docs/agent-memory-context/ (13 패턴)
+    [x] docs/agent-evals-observability/ (14 패턴)
+    [x] AGENTS.md 작성
+    [x] CLAUDE.md 생성 (Codex 팀 "Map을 줘라" 패턴)
+    [x] feature-list.json 생성 (Anthropic harness 패턴)
+    [x] claude-progress.txt 생성 (세션 간 핸드오프)
+    [x] scripts/validate-docs.sh 생성 (아키텍처 제약 강제)
+    [x] scripts/find-tech-debt.sh 생성 (기술 부채 탐지)
+
+────────────────────────────────────────────────────────
+현재 상태
+────────────────────────────────────────────────────────
+
+모든 기존 주제 완료. 하네스 파일 추가 완료.
+다음 세션은 아래 "다음 작업 후보"에서 선택.
+
+────────────────────────────────────────────────────────
+다음 세션 시작 방법 (3단계)
+────────────────────────────────────────────────────────
+
+1. 이 파일 읽기 — 현재 상태 파악
+2. feature-list.json에서 status=pending, priority=high 항목 선택
+3. 선택한 항목 status를 "in_progress"로 변경 후 작업 시작
+
+────────────────────────────────────────────────────────
+다음 작업 후보 (feature-list.json 참조)
+────────────────────────────────────────────────────────
+
+🔴 [HIGH] advanced-rag-retrieval
+   대상: agent-memory-context/patterns.md에 패턴 추가
+   항목: Self-RAG, CRAG, RAPTOR, RAG-Fusion (high)
+         HyDE, Modular RAG (medium), FLARE (low)
+
+🔴 [HIGH] ragas-eval
+   대상: agent-evals-observability/patterns.md에 패턴 추가
+   항목: RAGAS
+
+🔴 [HIGH] graph-based-rag
+   대상: docs/graph-rag/ 신규 주제 생성
+   항목: GraphRAG, LightRAG (high), HippoRAG (medium)
+
+────────────────────────────────────────────────────────
+작업 완료 체크리스트 (각 세션 후 수행)
+────────────────────────────────────────────────────────
+
+[ ] feature-list.json 해당 항목 status → "done"
+[ ] docs/index.md 완료 주제 추가, 차후 목록에서 제거
+[ ] claude-progress.txt 갱신 (이 파일)
+[ ] bash scripts/validate-docs.sh 통과 확인
+[ ] git commit
