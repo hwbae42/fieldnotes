@@ -75,6 +75,7 @@ bash scripts/validate-docs.sh   # 자동 검증
 | [에이전트 친화적 코드베이스](docs/agent-friendly-codebase/overview.md) | AGENTS.md 설계, 14개 패턴, MCP 통합 |
 | [에이전트 메모리 / 컨텍스트](docs/agent-memory-context/overview.md) | Context engineering, 13개 패턴, RAG 연동, 압축 기법 |
 | [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | LLM-as-judge, 14개 패턴, 트레이스 표준, eval-driven CI |
+| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, 6개 패턴, 1M줄·0 수동 코드 달성 방법론 |
 
 ---
 

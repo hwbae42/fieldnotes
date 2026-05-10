@@ -48,6 +48,17 @@ LLM-as-judge, trajectory eval, OpenTelemetry GenAI / OpenInference 트레이스 
 
 ---
 
+### [하네스 엔지니어링 현장 보고](./harness-engineering/overview.md)
+OpenAI Codex 팀·Anthropic의 agent-first 개발 실험 결과와 설계 원칙. 1M줄·1,500 PR·수동 코드 0 달성 방법론.
+
+| 파일 | 내용 |
+|---|---|
+| [overview.md](./harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 두 실패 유형, 두 팀 비교 |
+| [patterns.md](./harness-engineering/patterns.md) | 6개 패턴 (Map-first, 기계적 제약 강제, 기술 부채 자동 수거, Context=존재, 원샷 함정 회피, Generator-Evaluator 분리) |
+| [references.md](./harness-engineering/references.md) | 3개 1차 출처 (OpenAI·Anthropic 공식 블로그) |
+
+---
+
 ## 차후 조사 목록
 
 ### 기존 주제 확장
