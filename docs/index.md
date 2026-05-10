@@ -50,4 +50,36 @@ LLM-as-judge, trajectory eval, OpenTelemetry GenAI / OpenInference 트레이스 
 
 ## 차후 조사 목록
 
-(현재 등록된 항목 없음 — 위 4개 주제로 일단락. 새 후보가 생기면 여기 추가.)
+### 기존 주제 확장
+
+#### `agent-memory-context` — Advanced RAG 검색 패턴 추가
+현재 docs는 RAG를 메모리 백엔드로 다루지만, 검색 품질을 높이는 기법들은 미수록. 아래를 패턴으로 추가 검토.
+
+| 기술 | 한 줄 요약 | 우선순위 |
+|---|---|---|
+| **Self-RAG** | 에이전트가 검색 필요 여부를 스스로 판단·비판하는 adaptive retrieval | 높음 |
+| **CRAG (Corrective RAG)** | 검색 결과 품질을 평가하고 부족하면 web 검색으로 보완하는 교정 루프 | 높음 |
+| **RAPTOR** | 재귀적 요약으로 계층 트리 인덱스를 구성하는 long-doc 검색 기법 | 높음 |
+| **RAG-Fusion** | 멀티 쿼리 생성 + RRF 재랭킹으로 검색 강건성 향상 | 높음 |
+| **HyDE** | 가상의 답변 문서를 생성해 임베딩 공간 미스매치를 줄이는 쿼리 증강 | 중간 |
+| **FLARE** | 생성 중 불확실 구간에서 능동적으로 검색을 트리거하는 interleaved retrieval | 낮음 |
+| **Modular RAG** | RAG 컴포넌트(인덱싱·검색·생성·피드백)를 독립 모듈로 조합하는 아키텍처 프레임워크 | 중간 |
+
+#### `agent-evals-observability` — RAG 전용 평가 프레임워크 추가
+
+| 기술 | 한 줄 요약 | 우선순위 |
+|---|---|---|
+| **RAGAS** | Faithfulness / Answer Relevancy / Context Precision 등 RAG 특화 지표 자동 측정 프레임워크 | 높음 |
+
+---
+
+### 신규 주제 후보
+
+#### 그래프 기반 RAG / 지식 그래프 메모리
+GraphRAG·LightRAG·HippoRAG를 묶어 "관계 중심 검색 아키텍처"로 정리. 현재 overview에 GraphRAG가 표 한 줄로만 등장하며 내용 없음.
+
+| 기술 | 한 줄 요약 | 우선순위 |
+|---|---|---|
+| **GraphRAG** (Microsoft) | 엔티티 그래프 + community summary로 global/local 쿼리 지원 | 높음 |
+| **LightRAG** | 경량 그래프 + dual-level 검색(저수준 엔티티·고수준 토픽)으로 GraphRAG 비용 절감 | 높음 |
+| **HippoRAG** | 해마 기억 구조에서 착안한 KG 기반 RAG — episodic vs semantic 기억 분리 | 중간 |
