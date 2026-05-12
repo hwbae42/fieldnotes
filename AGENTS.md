@@ -45,7 +45,8 @@ cat feature-list.json     # 다음 작업 우선순위 확인
 
 **종료 후**
 1. `docs/index.md` 업데이트 (완료 주제 추가, 차후 목록에서 제거)
-2. `claude-progress.txt` 업데이트 (완료 항목 체크, 다음 작업 명시)
+2. `README.md` 업데이트 (완료 주제/패턴 수/핵심 설명 동기화)
+3. `claude-progress.txt` 업데이트 (완료 항목 체크, 다음 작업 명시)
 
 ---
 
@@ -67,7 +68,7 @@ bash scripts/validate-docs.sh   # 자동 검증
 
 ---
 
-## 완료된 주제 (2026-05-10 기준)
+## 완료된 주제 (2026-05-12 기준)
 
 | 주제 | 핵심 내용 |
 |---|---|
@@ -75,7 +76,7 @@ bash scripts/validate-docs.sh   # 자동 검증
 | [에이전트 친화적 코드베이스](docs/agent-friendly-codebase/overview.md) | AGENTS.md 설계, 14개 패턴, MCP 통합 |
 | [에이전트 메모리 / 컨텍스트](docs/agent-memory-context/overview.md) | Context engineering, 17개 패턴 (Self-RAG·CRAG·RAPTOR·RAG-Fusion 포함) |
 | [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | LLM-as-judge, 15개 패턴 (RAGAS 포함), 트레이스 표준, eval-driven CI |
-| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, 25개 패턴 (도구·가드레일·루프·컨텍스트·비용 라우팅 전 영역) |
+| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 2가지 실패 유형, Karpathy agentic engineering, 28개 패턴 (도구·가드레일·루프·컨텍스트·비용 라우팅·검증 가능성 전 영역) |
 | [그래프 기반 RAG](docs/graph-rag/overview.md) | GraphRAG·LightRAG·HippoRAG 3개 패턴, 멀티홉·global query 해법 |
 
 ---

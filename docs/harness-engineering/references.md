@@ -11,6 +11,8 @@
 | 1 | [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) | OpenAI, 2026.02.11 | 3원칙(Map/기계적 제약/부채 컬렉션), 1M줄·1,500 PR·10× 실험 수치 |
 | 2 | [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) | Anthropic, 2025.11.26 | 두 실패 유형, Initializer+Coding agent 구조, feature-list.json·progress.txt |
 | 3 | [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) | Anthropic, 2026.03.24 | Generator+Evaluator 분리, 20× 비용 프리미엄($9→$200), "phase change" 품질 |
+| 4 | [Sequoia Ascent 2026 summary](https://karpathy.bearblog.dev/sequoia-ascent-2026/) | Andrej Karpathy, 2026.04.30 | Software 3.0, agentic engineering, 검증 가능성, MenuGen 결제 오류, agent-native infrastructure |
+| 5 | [Andrej Karpathy: From Vibe Coding to Agentic Engineering](https://www.youtube.com/watch?v=96jN2OCOfLs) | Sequoia Capital, 2026.04.29 | 원본 인터뷰 영상. vibe coding vs agentic engineering, Software 3.0, jagged intelligence |
 
 ---
 
@@ -53,6 +55,12 @@
 - Claude API pricing. https://claude.com/platform/api — 2026-05 시점 Opus/Sonnet/Haiku 단가, prompt caching 1.25×/2×/0.1× 곱수, batch 50% 할인.
 - Anthropic, *Prompt caching*. https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching — breakpoint 배치 규칙, 모델별 최소 토큰, 20블록 lookback, silent miss 진단.
 - Anthropic, *Message Batches API*. https://docs.anthropic.com/en/docs/build-with-claude/batch-processing — 50% 할인, 100k 요청/256MB 한도, 24h SLA.
+
+## Karpathy agentic engineering 보강 (패턴 26–28 추가, 2026-05-12)
+
+- Andrej Karpathy, *Sequoia Ascent 2026 summary*. https://karpathy.bearblog.dev/sequoia-ascent-2026/ — Software 3.0, 검증 가능성, vibe coding vs agentic engineering, MenuGen의 Stripe/Google 이메일 매칭 오류, agent-native infrastructure.
+- Sequoia Capital, *Andrej Karpathy: From Vibe Coding to Agentic Engineering*. https://www.youtube.com/watch?v=96jN2OCOfLs — 원본 인터뷰 영상.
+- 아일의 워크룸, *카파시가 "뒤처졌다"고 느낀 AI 코딩의 진짜 변화*. https://youtu.be/dlAn9H8goUA — 한국어 해설 영상. 원본 인터뷰의 에이전틱 코딩·검증 가능성·시스템 모델 관점을 국내 개발자 맥락으로 재정리.
 
 ## 연관 문서 (fieldnotes 내)
 

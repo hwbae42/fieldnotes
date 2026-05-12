@@ -23,8 +23,9 @@ cat docs/index.md         # 차후 조사 목록에서 범위 파악
 3. `patterns.md` 작성 — 아래 패턴 템플릿 사용, 패턴마다 반드시 5개 섹션
 4. `references.md` 작성 — 직접 읽고 검증한 자료만
 5. `docs/index.md` 완료 주제에 추가, 차후 목록에서 제거
-6. `feature-list.json` 해당 항목 status → `"done"`
-7. `claude-progress.txt` 갱신
+6. `README.md` 완료 주제/패턴 수/핵심 설명 동기화
+7. `feature-list.json` 해당 항목 status → `"done"`
+8. `claude-progress.txt` 갱신
 
 ---
 
@@ -34,8 +35,9 @@ cat docs/index.md         # 차후 조사 목록에서 범위 파악
 2. 파일 하단에 N+1번부터 추가 (새 파일 생성 금지)
 3. `references.md`에 새 출처 추가
 4. `docs/index.md`의 해당 주제 설명 패턴 수 업데이트
-5. 차후 조사 목록에서 완료 항목 제거
-6. `feature-list.json`, `claude-progress.txt` 갱신
+5. `README.md`의 패턴 수/핵심 설명 업데이트
+6. 차후 조사 목록에서 완료 항목 제거
+7. `feature-list.json`, `claude-progress.txt` 갱신
 
 ---
 
@@ -84,5 +86,6 @@ bash scripts/find-tech-debt.sh  # TODO·확인 필요 잔존 여부
 - [ ] 모든 패턴에 출처 URL 또는 출판물명 있음
 - [ ] 추측성 주장 없거나 "(추측)"으로 명시됨
 - [ ] `docs/index.md` 업데이트됨
+- [ ] `README.md` 업데이트됨
 - [ ] `feature-list.json` status → `"done"`
 - [ ] `claude-progress.txt` 갱신됨

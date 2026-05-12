@@ -6,12 +6,34 @@
 > 기존 패턴과 중복을 피하기 위해 구현 상세는 agent-orchestration·agent-friendly-codebase를 참조하고, 여기서는 원칙·framing·현장 수치에 집중한다.
 
 패턴 목록:
-1. [Map-first context design (지도 우선 컨텍스트 설계)](#1-map-first-context-design)
-2. [Mechanical architecture enforcement (아키텍처 제약 기계적 강제)](#2-mechanical-architecture-enforcement)
-3. [Automated tech debt collection (기술 부채 자동 수거)](#3-automated-tech-debt-collection)
-4. [Context-existence equivalence (컨텍스트 = 존재 여부)](#4-context-existence-equivalence)
-5. [One-shot trap avoidance (원샷 함정 회피)](#5-one-shot-trap-avoidance)
-6. [Generator-Evaluator separation (생성-평가 역할 분리)](#6-generator-evaluator-separation)
+1. Map-first context design
+2. Mechanical architecture enforcement
+3. Automated tech debt collection
+4. Context-existence equivalence
+5. One-shot trap avoidance
+6. Generator-Evaluator separation
+7. Tool description ergonomics
+8. 도구 카탈로그 동적 로딩
+9. MCP 서버를 인하우스 함수처럼 설계
+10. 도구 결과 오프로딩과 압축
+11. 에이전트 샌드박스 격리
+12. 네트워크 egress 화이트리스트
+13. 시크릿 redaction & 탐지 파이프라인
+14. Dual-LLM 패턴
+15. CaMeL
+16. Permission mode 그라디언트
+17. Halting condition & max iterations
+18. 무한 루프·반복 도구 호출 탐지
+19. Self-critique 횟수 튜닝
+20. Just-in-time 컨텍스트 로딩
+21. Compaction 트리거 시점
+22. 인라인 vs 외부 참조 트레이드오프
+23. 역할별 모델 라우팅
+24. Prompt caching 운영 패턴
+25. Batched evaluation
+26. Verifiability-first task selection
+27. System model invariants in the spec
+28. Agent-native interface design
 
 ---
 
@@ -984,6 +1006,167 @@ eval-driven CI 파이프라인([agent-evals-observability](../agent-evals-observ
 
 ---
 
+## 26. Verifiability-first task selection
+
+### 무엇
+에이전트에게 작업을 맡기기 전에 "이 작업은 검증 가능한가?"를 먼저 판정한다. 스펙이 아니라 **검증 신호**가 에이전틱 코딩의 안전한 자동화 경계를 정한다.
+
+### 언제
+- 기능 구현·리팩터링·테스트 작성·배포 설정처럼 에이전트가 여러 파일을 바꾸는 작업.
+- "대충 만들어 봐"가 아니라 프로덕션 품질을 유지해야 하는 작업.
+- 자동 테스트, 정적 분석, 스크린샷 비교, golden set, human review checklist 중 하나라도 만들 수 있는 작업.
+- 반대로 성공/실패 기준을 말할 수 없는 탐색·디자인·전략 작업은 구현 위임 전에 평가 기준부터 만든다.
+
+### 어떻게
+
+작업을 시작하기 전 task brief에 5개 항목을 강제한다.
+
+```markdown
+## 목표
+무엇이 달라져야 하는가.
+
+## 완료 조건
+어떤 관찰 결과가 나오면 끝났다고 볼 것인가.
+
+## 금지 조건
+건드리면 안 되는 파일, 깨면 안 되는 호환성, 보안 경계.
+
+## 검증
+- 자동: `pnpm test`, `pnpm typecheck`, `bash scripts/validate-docs.sh`
+- 수동: diff에서 확인할 리뷰 관점
+
+## 실패 시
+어떤 로그/테스트/상태를 먼저 확인하고, 언제 중단할 것인가.
+```
+
+검증성이 낮은 작업은 바로 구현시키지 않는다. 먼저 검증기를 만든다.
+
+| 작업 유형 | 먼저 만들 검증 신호 |
+|---|---|
+| 버그 수정 | 실패를 재현하는 테스트 |
+| 리팩터링 | 전후 테스트 통과 + public API diff 없음 |
+| UI 변경 | 스크린샷 비교 + 핵심 사용자 플로우 |
+| 리서치 문서 | 출처 URL + 주장별 근거 |
+| 보안/권한 | negative test + 권한 매트릭스 |
+
+Karpathy의 표현으로는 전통 소프트웨어가 "명시할 수 있는 것"을 자동화했다면 LLM은 "검증할 수 있는 것"을 자동화한다. 따라서 에이전트 위임 가능성은 모델 지능보다 verifier의 품질에 더 강하게 묶인다.
+
+### 트레이드오프
+- 장점: 에이전트가 빠르게 산출물을 만들 때도 "완료"를 외부 신호로 판정할 수 있다. 원샷 함정과 조기 완료 선언을 줄인다.
+- 단점: 초기 속도는 느려진다. 작은 수정에도 task brief를 과하게 요구하면 ceremony가 된다.
+- 실패 지점: 잘못된 verifier는 에이전트를 잘못된 방향으로 최적화한다. 테스트가 구현 세부를 고정하면 더 나은 설계를 막는다.
+- 운영 기준: 자동 검증이 있으면 자율 루프 가능, 수동 체크리스트만 있으면 사람 승인 게이트를 둔다. 검증 신호가 전혀 없으면 에이전트에게 구현이 아니라 조사·초안까지만 맡긴다.
+
+### 출처
+- [Karpathy, Sequoia Ascent 2026 summary — Verifiability](https://karpathy.bearblog.dev/sequoia-ascent-2026/) — "LLMs ... automate what you can verify" 프레임.
+- [Andrej Karpathy: From Vibe Coding to Agentic Engineering](https://www.youtube.com/watch?v=96jN2OCOfLs) — Sequoia 원본 인터뷰.
+- [agent-friendly-codebase 패턴 3](../agent-friendly-codebase/patterns.md) — Closure definition을 exit code로 명시.
+- [agent-friendly-codebase 패턴 10](../agent-friendly-codebase/patterns.md) — 테스트를 에이전트의 1차 검증 도구로 사용.
+
+---
+
+## 27. System model invariants in the spec
+
+### 무엇
+에이전트가 구현 전에 반드시 지켜야 할 시스템 모델의 불변식(invariant)을 스펙에 명시한다. API 이름이나 SDK 호출법보다 "사용자·권한·데이터·결제·상태가 무엇에 묶이는가"를 먼저 고정한다.
+
+### 언제
+- 인증, 권한, 결제, 크레딧, 멀티테넌시, 감사 로그, 데이터 소유권이 걸린 기능.
+- 코드가 문법적으로 맞고 테스트도 일부 통과하지만 설계가 틀리면 사고가 나는 영역.
+- 모델이 표면적으로 그럴듯한 키(이메일, 이름, display id, URL slug)를 영속 식별자로 쓰기 쉬운 코드베이스.
+
+### 어떻게
+
+기능 스펙 또는 AGENTS.md의 관련 섹션에 `System invariants`를 둔다.
+
+```markdown
+## System invariants
+
+- 사용자 식별은 `users.id` 기준이다. 이메일은 로그인/알림용 속성일 뿐 권한·결제 매칭 키가 아니다.
+- Stripe webhook은 `stripe_customer_id` 또는 내부 user id 매핑 테이블로 처리한다.
+- 같은 webhook event id는 한 번만 처리한다. 중복 수신은 크레딧을 추가 지급하지 않는다.
+- 모든 org-scoped write는 `membership(role)` 확인 뒤 실행한다.
+- 실패한 결제는 entitlement를 만들지 않는다. 성공 후 DB 기록 실패는 재처리 가능해야 한다.
+```
+
+에이전트에게는 구현 전후로 두 가지를 요구한다.
+
+1. 이번 변경이 어떤 invariant에 닿는지 먼저 나열한다.
+2. 각 invariant마다 positive/negative test 또는 DB 제약을 추가한다.
+
+리뷰에서는 "코드가 돌아가는가"보다 "데이터가 무엇에 묶였는가"를 본다. 특히 이메일·문자열·외부 표시명으로 권한/결제를 매칭하는 diff는 위험 신호로 취급한다.
+
+### 트레이드오프
+- 장점: 에이전트가 잘 틀리는 "그럴듯하지만 잘못된 시스템 모델"을 작업 시작 전에 차단한다.
+- 단점: 좋은 invariant는 사람이 시스템을 깊이 이해해야 쓸 수 있다. 이해가 없으면 문서만 늘어난다.
+- 실패 지점: 오래된 invariant가 남으면 에이전트가 현재 코드보다 낡은 설계를 따른다. 스키마·권한 모델 변경 시 같이 갱신해야 한다.
+- 적용 기준: 프로덕션 데이터·돈·권한이 걸린 기능은 invariant 없이는 에이전트 자율 구현 금지.
+
+### 출처
+- [Karpathy, Sequoia Ascent 2026 summary — MenuGen payment example](https://karpathy.bearblog.dev/sequoia-ascent-2026/) — Stripe 이메일과 Google 이메일을 매칭하려 한 에이전트 오류, persistent user id 필요성.
+- [Andrej Karpathy: From Vibe Coding to Agentic Engineering](https://www.youtube.com/watch?v=96jN2OCOfLs) — agentic engineering에서 인간이 spec·plan·oversight를 책임져야 한다는 원본 인터뷰.
+- [harness-engineering 패턴 4](#4-context-existence-equivalence) — 컨텍스트에 없는 시스템 규칙은 에이전트에게 없는 것으로 취급.
+
+---
+
+## 28. Agent-native interface design
+
+### 무엇
+사람이 UI를 클릭해 수행하던 설정·배포·운영 절차를 에이전트가 읽고 실행할 수 있는 CLI, API, Markdown recipe, 구조화 로그, 감사 가능한 권한 모델로 노출한다.
+
+### 언제
+- 배포, DNS, 결제, 인증, 시크릿, 클라우드 설정처럼 "코드는 쉬운데 운영 절차가 어려운" 영역.
+- 에이전트가 URL 이동, 버튼 클릭, 콘솔 복사 같은 사람용 절차에서 자주 멈출 때.
+- 내부 플랫폼·SaaS·인프라 도구를 에이전트가 1차 사용자로 다루게 만들고 싶을 때.
+
+### 어떻게
+
+사람용 문서와 별도로 agent recipe를 둔다.
+
+```markdown
+## Agent recipe: create staging deployment
+
+### Preconditions
+- `VERCEL_TOKEN`은 secret manager에 존재한다.
+- 현재 브랜치는 PR 브랜치다.
+
+### Commands
+1. `vercel pull --environment=preview --yes`
+2. `vercel deploy --prebuilt --token "$VERCEL_TOKEN"`
+3. `pnpm smoke:test -- --base-url "$DEPLOYMENT_URL"`
+
+### Expected output
+- deploy URL 1개
+- smoke test exit 0
+
+### Rollback
+- `vercel rollback "$DEPLOYMENT_URL"`
+```
+
+에이전트 네이티브 인터페이스 체크리스트:
+- 클릭 경로 대신 CLI/API가 있는가?
+- 명령이 idempotent하거나 `--dry-run`을 제공하는가?
+- 성공/실패가 exit code와 JSON 로그로 드러나는가?
+- 권한은 최소 권한 토큰으로 분리되어 있는가?
+- 시크릿 값이 프롬프트나 로그에 직접 노출되지 않는가?
+- 변경 기록이 감사 가능하게 남는가?
+
+MCP 서버나 내부 tool wrapper를 만들 때도 같은 원칙을 적용한다. 모델에게 브라우저 콘솔을 뒤지게 하지 말고, "현재 배포 상태", "사용 가능한 롤백 대상", "권한 검증 결과"를 구조화된 응답으로 제공한다.
+
+### 트레이드오프
+- 장점: 에이전트가 코드 작성 뒤 배포·검증·롤백까지 닫힌 루프로 처리할 수 있다.
+- 단점: agent-native API/CLI를 만드는 비용이 든다. UI만 있던 내부 도구를 운영 인터페이스로 승격해야 한다.
+- 실패 지점: 권한을 넓게 주면 prompt injection이나 잘못된 명령이 실제 인프라에 영향을 준다. 샌드박스, egress 정책, permission mode와 같이 써야 한다.
+- 적용 기준: 먼저 staging·preview·read-only 운영에 적용하고, production write는 human approval gate 뒤에 둔다.
+
+### 출처
+- [Karpathy, Sequoia Ascent 2026 summary — Agent-Native Infrastructure](https://karpathy.bearblog.dev/sequoia-ascent-2026/) — 사람용 URL/클릭 문서 대신 agent-first infrastructure 필요성, Vercel·auth·payments·secrets 배포 마찰.
+- [Andrej Karpathy: From Vibe Coding to Agentic Engineering](https://www.youtube.com/watch?v=96jN2OCOfLs) — 에이전트가 실제 권한과 로컬 컨텍스트를 갖고 행동하는 환경 논의.
+- [Anthropic, Writing tools for AI agents](https://www.anthropic.com/engineering/writing-tools-for-agents) — 에이전트가 쓰기 좋은 도구 응답과 인터페이스 설계.
+- [harness-engineering 패턴 9](#9-mcp-서버를-인하우스-함수처럼-설계) — MCP를 high-signal context gateway로 설계.
+
+---
+
 ## 패턴 선택 가이드
 
 | 증상 | 적용할 패턴 |
@@ -1005,3 +1188,6 @@ eval-driven CI 파이프라인([agent-evals-observability](../agent-evals-observ
 | 컨텍스트가 윈도우 95%에 가까워 자동 압축이 디테일을 날림 | 패턴 21 (단계 경계에서 수동 `/compact`) |
 | 세션당 비용이 $100+ — 절감 시급 | 패턴 23 (모델 라우팅) + 패턴 24 (prompt caching) |
 | 골든셋 회귀 평가 비용이 큼 | 패턴 25 (Message Batches 50% + caching stacking) |
+| 큰 작업을 에이전트에게 맡길지 애매함 | 패턴 26 (검증 가능성 우선 작업 선별) |
+| 결제·권한·식별 로직이 그럴듯하지만 위험함 | 패턴 27 (시스템 모델 불변식 명시) |
+| 배포·설정이 사람용 UI 클릭 절차에 막힘 | 패턴 28 (에이전트 네이티브 인터페이스 설계) |

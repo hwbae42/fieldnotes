@@ -2,6 +2,8 @@
 
 새로 등장하는 트렌드와 방법론을 조사·정리하고, 다른 프로젝트에 적용하기 위한 리서치 레포입니다.
 
+> 마지막 업데이트: 2026-05-12
+
 ## 목적
 
 - 빠르게 변화하는 AI 엔지니어링 생태계를 추적하고 핵심 개념을 문서화
@@ -16,7 +18,7 @@
 | [코딩 에이전트 친화적인 코드베이스](docs/agent-friendly-codebase/overview.md) | 14개 | 25+ |
 | [에이전트 메모리 / 컨텍스트 관리](docs/agent-memory-context/overview.md) | 17개 | 23+ |
 | [에이전트 평가 / 관측](docs/agent-evals-observability/overview.md) | 15개 | 55+ |
-| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | 25개 | 30+ |
+| [하네스 엔지니어링 현장 보고](docs/harness-engineering/overview.md) | 28개 | 35+ |
 | [그래프 기반 RAG](docs/graph-rag/overview.md) | 3개 | 9개 |
 
 전체 목록 및 차후 조사 후보 → [`docs/index.md`](docs/index.md)
@@ -37,4 +39,5 @@ docs/
 - 주제별로 `docs/` 하위에 디렉토리를 만들어 문서화
 - 단순 링크 모음이 아닌, 직접 소화하고 정제한 내용만 기록
 - 다른 프로젝트에 가져다 쓸 수 있도록 **실용적인 형태**로 작성
+- 작업 완료 시 `docs/index.md`, `README.md`, `claude-progress.txt`를 함께 동기화
 - AI 에이전트와 협업 시 → [`AGENTS.md`](AGENTS.md) 참고

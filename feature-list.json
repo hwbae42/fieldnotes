@@ -1,7 +1,7 @@
 {
   "_schema": "fieldnotes-feature-list-v1",
   "_description": "Anthropic harness 패턴 적용: 세션 간 작업 목록을 구조화. 새 세션 시작 시 status=pending, priority=high 항목부터 선택.",
-  "_usage": "작업 선택 → status를 'in_progress'로 변경 → 작업 완료 → status를 'done'으로 변경 + claude-progress.txt 업데이트 + docs/index.md 업데이트",
+  "_usage": "작업 선택 → status를 'in_progress'로 변경 → 작업 완료 → status를 'done'으로 변경 + docs/index.md/README.md/claude-progress.txt 업데이트",
   "topics": [
     {
       "id": "advanced-rag-retrieval",
@@ -141,6 +141,21 @@
         {"name": "역할별 모델 라우팅", "priority": "high", "summary": "Planner=cheap / Executor=expensive 분리, classifier로 작업 난이도 판단"},
         {"name": "Prompt caching 운영 패턴", "priority": "medium", "summary": "하네스에서 cache hit 극대화하는 프롬프트 구조, 5분 TTL 활용"},
         {"name": "Batched evaluation", "priority": "low", "summary": "Evaluator를 batch API로 돌려 비용 분할 상환"}
+      ],
+      "status": "done",
+      "priority": "medium"
+    },
+    {
+      "id": "karpathy-agentic-engineering",
+      "type": "extend",
+      "target_doc": "harness-engineering",
+      "title": "Karpathy agentic engineering 방법론 보강",
+      "description": "Sequoia Ascent 2026 인터뷰와 한국어 해설 영상의 에이전틱 코딩 방법론을 하네스 관점에서 패턴화. 검증 가능성, 시스템 모델 불변식, 에이전트 네이티브 인터페이스를 추가.",
+      "done_criteria": "3개 항목이 무엇/언제/어떻게/트레이드오프/출처 5개 섹션을 갖추어 harness-engineering/patterns.md에 추가됨. references/index/README/progress 동기화. validate-docs.sh 통과.",
+      "items": [
+        {"name": "Verifiability-first task selection", "priority": "high", "summary": "작업 위임 전에 검증 가능성을 먼저 판정하고 verifier를 만든다"},
+        {"name": "System model invariants in the spec", "priority": "high", "summary": "인증·결제·권한·데이터 소유권 불변식을 스펙에 명시한다"},
+        {"name": "Agent-native interface design", "priority": "medium", "summary": "사람용 UI 클릭 절차를 CLI/API/Markdown recipe/구조화 로그로 노출한다"}
       ],
       "status": "done",
       "priority": "medium"

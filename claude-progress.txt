@@ -1,6 +1,6 @@
 fieldnotes 세션 핸드오프 파일
 형식: Anthropic "Effective Harnesses for Long-Running Agents" 패턴 적용
-마지막 업데이트: 2026-05-10
+마지막 업데이트: 2026-05-12
 
 ────────────────────────────────────────────────────────
 완료된 세션
@@ -31,13 +31,23 @@ fieldnotes 세션 핸드오프 파일
     [x] validate-docs.sh 통과
     [x] docs/index.md / AGENTS.md / feature-list.json 동기화
 
+세션 3 (2026-05-12): Karpathy agentic engineering 보강
+  완료:
+    [x] Sequoia Ascent 2026 / Asle's Workroom 영상 기반 에이전틱 코딩 방법론 검토
+    [x] harness-engineering/patterns.md #26~#28 추가
+        - Verifiability-first task selection
+        - System model invariants in the spec
+        - Agent-native interface design
+    [x] references.md / docs/index.md / README.md / AGENTS.md / feature-list.json 동기화
+    [x] 작업 종료 루틴에 README.md 업데이트 의무 추가
+
 ────────────────────────────────────────────────────────
 현재 상태
 ────────────────────────────────────────────────────────
 
 6개 주제 카탈로그 보유 (agent-orchestration/agent-friendly-codebase/
 agent-memory-context/agent-evals-observability/harness-engineering/graph-rag).
-패턴 총 85개 (11+14+17+15+25+3).
+패턴 총 88개 (11+14+17+15+28+3).
 
 남은 작업은 medium "하네스 케이스 스터디" 또는 low 우선순위 RAG 항목.
 
@@ -65,6 +75,7 @@ agent-memory-context/agent-evals-observability/harness-engineering/graph-rag).
 
 [ ] feature-list.json 해당 항목 status → "done"
 [ ] docs/index.md 완료 주제 추가, 차후 목록에서 제거
+[ ] README.md 완료 주제/패턴 수/핵심 설명 동기화
 [ ] claude-progress.txt 갱신 (이 파일)
 [ ] bash scripts/validate-docs.sh 통과 확인
 [ ] git commit

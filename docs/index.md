@@ -1,6 +1,6 @@
 # fieldnotes — 문서 인덱스
 
-> 마지막 업데이트: 2026-05-10
+> 마지막 업데이트: 2026-05-12
 
 ## 완료된 주제
 
@@ -49,13 +49,13 @@ LLM-as-judge, trajectory eval, OpenTelemetry GenAI / OpenInference 트레이스 
 ---
 
 ### [하네스 엔지니어링 현장 보고](./harness-engineering/overview.md)
-OpenAI Codex 팀·Anthropic의 agent-first 개발 실험 결과와 설계 원칙. 1M줄·1,500 PR·수동 코드 0 달성 방법론. 하네스 7요소(컨텍스트·도구·메모리·루프·가드레일·평가·오케스트레이션) 전 영역 패턴 카탈로그.
+OpenAI Codex 팀·Anthropic의 agent-first 개발 실험 결과와 설계 원칙. 1M줄·1,500 PR·수동 코드 0 달성 방법론. Karpathy의 agentic engineering 관점까지 포함한 하네스 7요소(컨텍스트·도구·메모리·루프·가드레일·평가·오케스트레이션) 전 영역 패턴 카탈로그.
 
 | 파일 | 내용 |
 |---|---|
 | [overview.md](./harness-engineering/overview.md) | Codex 팀 3원칙, Anthropic 두 실패 유형, 두 팀 비교 |
-| [patterns.md](./harness-engineering/patterns.md) | 25개 패턴 (Map-first, 기계적 제약 강제, 기술 부채 자동 수거, Context=존재, 원샷 함정 회피, Generator-Evaluator 분리, 도구 description 인체공학, 도구 카탈로그 동적 로딩, MCP 설계, 도구 결과 오프로딩, 샌드박스 격리, egress 화이트리스트, 시크릿 redaction, Dual-LLM, CaMeL, Permission mode 그라디언트, Halting condition, 무한 루프 탐지, Self-critique 횟수 튜닝, JIT 컨텍스트 로딩, Compaction 트리거, 인라인 vs 외부 참조, 역할별 모델 라우팅, Prompt caching 운영, Batched evaluation) |
-| [references.md](./harness-engineering/references.md) | 1차 출처 (OpenAI·Anthropic·Simon Willison·DeepMind 등) |
+| [patterns.md](./harness-engineering/patterns.md) | 28개 패턴 (Map-first, 기계적 제약 강제, 기술 부채 자동 수거, Context=존재, 원샷 함정 회피, Generator-Evaluator 분리, 도구 description 인체공학, 도구 카탈로그 동적 로딩, MCP 설계, 도구 결과 오프로딩, 샌드박스 격리, egress 화이트리스트, 시크릿 redaction, Dual-LLM, CaMeL, Permission mode 그라디언트, Halting condition, 무한 루프 탐지, Self-critique 횟수 튜닝, JIT 컨텍스트 로딩, Compaction 트리거, 인라인 vs 외부 참조, 역할별 모델 라우팅, Prompt caching 운영, Batched evaluation, 검증 가능성 우선 작업 선별, 시스템 모델 불변식, 에이전트 네이티브 인터페이스) |
+| [references.md](./harness-engineering/references.md) | 1차 출처 (OpenAI·Anthropic·Karpathy/Sequoia·Simon Willison·DeepMind 등) |
 
 ---
 
